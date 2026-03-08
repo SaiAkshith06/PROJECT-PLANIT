@@ -5,7 +5,14 @@ const HeroSection = () => {
   return (
     <section className="relative pt-16 overflow-hidden">
       <div className="absolute inset-0">
-        <img src={heroImage} alt="Travel destination" className="w-full h-full object-cover" />
+        <motion.img
+          src={heroImage}
+          alt="Travel destination"
+          className="w-full h-full object-cover"
+          initial={{ scale: 1 }}
+          animate={{ scale: 1.15 }}
+          transition={{ duration: 20, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
       </div>
 
@@ -30,13 +37,11 @@ const HeroSection = () => {
           Build your dream itinerary in minutes.
         </motion.p>
       </div>
-
-      <div className="wave-container">
-        <div className="wave3" />
-        <div className="wave2" />
-        <div className="wave" />
-      </div>
     </section>
+  );
+};
+
+export default HeroSection;
   );
 };
 
