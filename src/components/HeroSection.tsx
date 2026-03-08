@@ -18,8 +18,10 @@ const HeroSection = () => {
           loop
           playsInline
           onCanPlay={() => setVideoLoaded(true)}
-          className={`w-full h-full object-cover absolute inset-0 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
+          className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-700 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
         >
+          {/* 4K nature/travel video streamed from CDN */}
+          <source src="https://assets.mixkit.co/videos/1181/1181-4k.mp4" type="video/mp4" />
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
