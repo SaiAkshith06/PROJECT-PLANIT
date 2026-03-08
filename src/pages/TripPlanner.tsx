@@ -56,7 +56,7 @@ const TripPlanner = () => {
             </div>
 
             {/* Results Panel */}
-            <div className="lg:col-span-5">
+            <div className={itinerary ? "lg:col-span-5" : "lg:col-span-7"}>
               <Tabs defaultValue="hotels" className="w-full">
                 <TabsList className="w-full grid grid-cols-3">
                   <TabsTrigger value="hotels" className="gap-1.5">
