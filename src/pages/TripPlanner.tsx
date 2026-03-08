@@ -1,11 +1,12 @@
 import { useSearchParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import MapSection, { DAY_COLORS } from "@/components/MapSection";
-import type { MapMarker, RouteSegment } from "@/components/MapSection";
+import type { MapMarker, RouteSegment, MapSectionHandle } from "@/components/MapSection";
 import { getDestinationData, generateItinerary } from "@/data/tripData";
-import { Star, Hotel, Plane, Camera, Calendar, IndianRupee } from "lucide-react";
+import { Star, Hotel, Plane, Camera, Calendar, IndianRupee, Play, Square } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TripPlanner = () => {
@@ -19,7 +20,66 @@ const TripPlanner = () => {
   const data = useMemo(() => getDestinationData(dest), [dest]);
   const itinerary = useMemo(() => (days ? generateItinerary(data, days) : null), [data, days]);
 
-  // Build markers: destination + all attractions
+  const mapSectionRef = useRef<MapSectionHandle>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [currentAnimStep, setCurrentAnimStep] = useState<string>("");
+  const animationRef = useRef<NodeJS.Timeout[]>([]);
+
+  // Collect all locations from itinerary for animation
+  const allLocations = useMemo(() => {
+    if (!itinerary) return [];
+    const locs: { pos: [number, number]; name: string; description: string; dayLabel: string }[] = [];
+    itinerary.forEach((day) => {
+      day.locations.forEach((loc) => {
+        locs.push({ ...loc, dayLabel: day.title });
+      });
+    });
+    return locs;
+  }, [itinerary]);
+
+  const stopAnimation = useCallback(() => {
+    animationRef.current.forEach(clearTimeout);
+    animationRef.current = [];
+    setIsAnimating(false);
+    setCurrentAnimStep("");
+    // Reset view
+    mapSectionRef.current?.resetView(data.coords, 10);
+  }, [data.coords]);
+
+  const startAnimation = useCallback(() => {
+    if (allLocations.length === 0) return;
+    stopAnimation();
+    setIsAnimating(true);
+
+    const timeouts: NodeJS.Timeout[] = [];
+    const DELAY_PER_LOCATION = 3500;
+
+    allLocations.forEach((loc, i) => {
+      const t = setTimeout(() => {
+        setCurrentAnimStep(`${loc.dayLabel} — ${loc.name}`);
+        mapSectionRef.current?.flyToMarker(loc.pos, loc.name, loc.description);
+      }, i * DELAY_PER_LOCATION);
+      timeouts.push(t);
+    });
+
+    // End animation
+    const endT = setTimeout(() => {
+      setIsAnimating(false);
+      setCurrentAnimStep("");
+      mapSectionRef.current?.resetView(data.coords, 10);
+    }, allLocations.length * DELAY_PER_LOCATION + 2000);
+    timeouts.push(endT);
+
+    animationRef.current = timeouts;
+  }, [allLocations, data.coords, stopAnimation]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      animationRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
   const mapMarkers: MapMarker[] = useMemo(() => {
     const markers: MapMarker[] = [
       { pos: data.coords, name: data.name, description: `Your destination — ${data.name}` },
@@ -30,10 +90,8 @@ const TripPlanner = () => {
     return markers;
   }, [data]);
 
-  // Build routes from itinerary day-wise
   const routes: RouteSegment[] = useMemo(() => {
     if (!itinerary) return [];
-
     return itinerary
       .filter((day) => day.locations.length >= 2)
       .map((day, i) => ({
@@ -68,14 +126,25 @@ const TripPlanner = () => {
             {/* Map */}
             <div className={`h-[500px] lg:h-auto lg:min-h-[700px] ${itinerary ? "lg:col-span-5" : "lg:col-span-6"}`}>
               <MapSection
+                ref={mapSectionRef}
                 center={data.coords}
                 zoom={10}
                 className="h-full"
                 extraMarkers={mapMarkers}
                 routes={routes}
               />
+              {/* Animate step indicator */}
+              {isAnimating && currentAnimStep && (
+                <div className="mt-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary" />
+                  </span>
+                  <span className="text-sm font-medium text-foreground">{currentAnimStep}</span>
+                </div>
+              )}
               {/* Route legend */}
-              {routes.length > 0 && (
+              {routes.length > 0 && !isAnimating && (
                 <div className="mt-3 flex flex-wrap gap-3">
                   {routes.map((r, i) => (
                     <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -182,10 +251,30 @@ const TripPlanner = () => {
             {itinerary && (
               <div className="lg:col-span-3">
                 <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-24">
-                  <h2 className="font-display font-bold text-foreground text-lg mb-4 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    Your Itinerary
-                  </h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-display font-bold text-foreground text-lg flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-primary" />
+                      Your Itinerary
+                    </h2>
+                    {allLocations.length > 0 && (
+                      <Button
+                        size="sm"
+                        variant={isAnimating ? "destructive" : "default"}
+                        onClick={isAnimating ? stopAnimation : startAnimation}
+                        className="gap-1.5 text-xs"
+                      >
+                        {isAnimating ? (
+                          <>
+                            <Square className="w-3 h-3" /> Stop
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-3 h-3" /> Animate Plan
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
                   <div className="space-y-5">
                     {itinerary.map((day, dayIdx) => (
                       <div key={day.day} className="relative pl-6 border-l-2" style={{ borderColor: DAY_COLORS[dayIdx % DAY_COLORS.length] }}>

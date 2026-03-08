@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -9,16 +9,6 @@ const defaultIcon = L.icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-});
-
-const highlightIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [30, 48],
-  iconAnchor: [15, 48],
-  popupAnchor: [1, -40],
-  className: "hue-rotate-[200deg] brightness-150 saturate-150",
 });
 
 const defaultMarkers = [
@@ -43,6 +33,11 @@ export interface RouteSegment {
   label?: string;
 }
 
+export interface MapSectionHandle {
+  flyToMarker: (pos: [number, number], name: string, description?: string) => void;
+  resetView: (center: [number, number], zoom: number) => void;
+}
+
 interface MapSectionProps {
   center?: [number, number];
   zoom?: number;
@@ -54,16 +49,16 @@ interface MapSectionProps {
 }
 
 const DAY_COLORS = [
-  "#E67514", // orange (primary)
-  "#06923E", // green
-  "#2563EB", // blue
-  "#9333EA", // purple
-  "#DC2626", // red
-  "#0891B2", // cyan
-  "#CA8A04", // yellow
+  "#E67514",
+  "#06923E",
+  "#2563EB",
+  "#9333EA",
+  "#DC2626",
+  "#0891B2",
+  "#CA8A04",
 ];
 
-const MapSection = ({
+const MapSection = forwardRef<MapSectionHandle, MapSectionProps>(({
   center = [22.5937, 78.9629],
   zoom = 5,
   className = "",
@@ -71,15 +66,46 @@ const MapSection = ({
   routes,
   onLocationClick,
   interactive = false,
-}: MapSectionProps) => {
+}, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMap = useRef<L.Map | null>(null);
   const markersLayer = useRef<L.LayerGroup | null>(null);
   const routesLayer = useRef<L.LayerGroup | null>(null);
+  const markerRefs = useRef<Map<string, L.Marker>>(new Map());
 
   const allMarkers = extraMarkers || defaultMarkers;
 
-  // Initialize map once
+  useImperativeHandle(ref, () => ({
+    flyToMarker(pos, name, description) {
+      if (!leafletMap.current) return;
+      leafletMap.current.flyTo(pos, 13, { duration: 1.5 });
+      // Open the popup for this marker
+      const key = `${pos[0]},${pos[1]}`;
+      const marker = markerRefs.current.get(key);
+      if (marker) {
+        setTimeout(() => marker.openPopup(), 1600);
+      } else {
+        // Create a temporary popup
+        setTimeout(() => {
+          if (!leafletMap.current) return;
+          L.popup({ className: "custom-popup" })
+            .setLatLng(pos)
+            .setContent(`
+              <div style="font-family: 'Alfa Slab One', serif; min-width: 160px;">
+                <strong style="font-size: 14px; color: #212121;">${name}</strong>
+                ${description ? `<p style="font-size: 12px; color: #555; margin: 4px 0 0 0;">${description}</p>` : ""}
+              </div>
+            `)
+            .openOn(leafletMap.current);
+        }, 1600);
+      }
+    },
+    resetView(center, zoom) {
+      if (!leafletMap.current) return;
+      leafletMap.current.flyTo(center, zoom, { duration: 1.5 });
+    },
+  }));
+
   useEffect(() => {
     if (!mapRef.current || leafletMap.current) return;
 
@@ -97,11 +123,9 @@ const MapSection = ({
     markersLayer.current = L.layerGroup().addTo(map);
     routesLayer.current = L.layerGroup().addTo(map);
 
-    // Click on map to reverse-geocode or find nearest known marker
     if (interactive && onLocationClick) {
       map.on("click", (e: L.LeafletMouseEvent) => {
         const { lat, lng } = e.latlng;
-        // Find nearest known destination
         let nearestName = "";
         let nearestDist = Infinity;
         defaultMarkers.forEach((m) => {
@@ -111,7 +135,6 @@ const MapSection = ({
             nearestName = m.name;
           }
         });
-        // Only auto-fill if click is reasonably close (within ~3 degrees)
         if (nearestDist < 3 && nearestName) {
           onLocationClick(nearestName);
         }
@@ -124,16 +147,15 @@ const MapSection = ({
     };
   }, []);
 
-  // Update center and zoom
   useEffect(() => {
     if (!leafletMap.current) return;
     leafletMap.current.flyTo(center, zoom, { duration: 1.5 });
   }, [center[0], center[1], zoom]);
 
-  // Update markers
   useEffect(() => {
     if (!markersLayer.current) return;
     markersLayer.current.clearLayers();
+    markerRefs.current.clear();
 
     allMarkers.forEach((m) => {
       const popupContent = `
@@ -152,10 +174,10 @@ const MapSection = ({
       }
 
       markersLayer.current!.addLayer(marker);
+      markerRefs.current.set(`${m.pos[0]},${m.pos[1]}`, marker);
     });
   }, [allMarkers, interactive, onLocationClick]);
 
-  // Update routes
   useEffect(() => {
     if (!routesLayer.current) return;
     routesLayer.current.clearLayers();
@@ -183,7 +205,6 @@ const MapSection = ({
 
       routesLayer.current!.addLayer(polyline);
 
-      // Add direction arrows using circle markers along the path
       route.positions.forEach((pos, i) => {
         if (i === 0 || i === route.positions.length - 1) return;
         L.circleMarker(pos, {
@@ -202,7 +223,9 @@ const MapSection = ({
       <div ref={mapRef} style={{ height: "100%", minHeight: 400 }} />
     </div>
   );
-};
+});
+
+MapSection.displayName = "MapSection";
 
 export { DAY_COLORS };
 export default MapSection;
