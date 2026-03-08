@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.cdnfonts.com/css/sreda');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
@@ -65,7 +66,7 @@
     --shadow-card-hover: 0 8px 30px -4px hsl(153 90% 30% / 0.15);
     --shadow-hero: 0 20px 60px -15px hsl(0 0% 13% / 0.2);
 
-    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-display: 'Sreda', sans-serif;
     --font-body: 'Inter', sans-serif;
     --chart-1: 27 90% 55%;
     --chart-2: 153 70% 45%;

@@ -14,10 +14,10 @@ export default {
   	},
   	extend: {
   		fontFamily: {
-  			display: [
-  				'Plus Jakarta Sans',
-  				'sans-serif'
-  			],
+			display: [
+				'Sreda',
+				'sans-serif'
+			],
   			body: [
   				'Inter',
   				'sans-serif'
