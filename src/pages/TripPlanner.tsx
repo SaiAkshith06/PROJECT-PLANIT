@@ -29,15 +29,19 @@ const TripPlanner = () => {
       <div className="pt-20 px-4 pb-8">
         <div className="container mx-auto">
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Trip to {data.name}
-            </h1>
-            <Badge variant="secondary" className="gap-1">
-              <Calendar className="w-3 h-3" /> {days} Days
-            </Badge>
-            <Badge variant="secondary" className="gap-1">
-              <IndianRupee className="w-3 h-3" /> ₹{budget.toLocaleString()}
-            </Badge>
+             <h1 className="text-2xl font-display font-bold text-foreground">
+               Trip to {data.name}
+             </h1>
+             {days && (
+               <Badge variant="secondary" className="gap-1">
+                 <Calendar className="w-3 h-3" /> {days} Days
+               </Badge>
+             )}
+             {budget && (
+               <Badge variant="secondary" className="gap-1">
+                 <IndianRupee className="w-3 h-3" /> ₹{budget.toLocaleString()}
+               </Badge>
+             )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
