@@ -10,9 +10,8 @@ const HeroSection = () => {
           loop
           playsInline
           className="w-full h-full object-cover"
-          poster=""
         >
-          <source src="/hero-video.mp4" type="video/mp4" />
+          <source src="https://cdn.pixabay.com/video/2023/07/22/173039-847612547_large.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
       </div>
