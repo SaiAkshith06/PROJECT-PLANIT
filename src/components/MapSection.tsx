@@ -28,8 +28,8 @@ interface MapSectionProps {
 }
 
 const MapSection = ({
-  center = [20.5937, 78.9629],
-  zoom = 4,
+  center = [22.5937, 78.9629],
+  zoom = 5,
   className = "",
   extraMarkers,
 }: MapSectionProps) => {
