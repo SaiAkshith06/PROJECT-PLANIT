@@ -10,11 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const TripPlanner = () => {
   const [params] = useSearchParams();
   const dest = params.get("dest") || "Goa";
-  const days = parseInt(params.get("days") || "3");
-  const budget = parseInt(params.get("budget") || "50000");
+  const daysParam = params.get("days");
+  const budgetParam = params.get("budget");
+  const days = daysParam ? parseInt(daysParam) : null;
+  const budget = budgetParam ? parseInt(budgetParam) : null;
 
   const data = useMemo(() => getDestinationData(dest), [dest]);
-  const itinerary = useMemo(() => generateItinerary(data, days), [data, days]);
+  const itinerary = useMemo(() => days ? generateItinerary(data, days) : null, [data, days]);
 
   const allMapMarkers = [
     { pos: data.coords, name: data.name },
@@ -27,20 +29,24 @@ const TripPlanner = () => {
       <div className="pt-20 px-4 pb-8">
         <div className="container mx-auto">
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Trip to {data.name}
-            </h1>
-            <Badge variant="secondary" className="gap-1">
-              <Calendar className="w-3 h-3" /> {days} Days
-            </Badge>
-            <Badge variant="secondary" className="gap-1">
-              <IndianRupee className="w-3 h-3" /> ₹{budget.toLocaleString()}
-            </Badge>
+             <h1 className="text-2xl font-display font-bold text-foreground">
+               Trip to {data.name}
+             </h1>
+             {days && (
+               <Badge variant="secondary" className="gap-1">
+                 <Calendar className="w-3 h-3" /> {days} Days
+               </Badge>
+             )}
+             {budget && (
+               <Badge variant="secondary" className="gap-1">
+                 <IndianRupee className="w-3 h-3" /> ₹{budget.toLocaleString()}
+               </Badge>
+             )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Map */}
-            <div className="lg:col-span-4 h-[500px] lg:h-auto lg:min-h-[700px]">
+            <div className={`h-[500px] lg:h-auto lg:min-h-[700px] ${itinerary ? "lg:col-span-4" : "lg:col-span-5"}`}>
               <MapSection
                 center={data.coords}
                 zoom={10}
@@ -50,7 +56,7 @@ const TripPlanner = () => {
             </div>
 
             {/* Results Panel */}
-            <div className="lg:col-span-5">
+            <div className={itinerary ? "lg:col-span-5" : "lg:col-span-7"}>
               <Tabs defaultValue="hotels" className="w-full">
                 <TabsList className="w-full grid grid-cols-3">
                   <TabsTrigger value="hotels" className="gap-1.5">
@@ -135,6 +141,7 @@ const TripPlanner = () => {
             </div>
 
             {/* Itinerary */}
+            {itinerary && (
             <div className="lg:col-span-3">
               <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-24">
                 <h2 className="font-display font-bold text-foreground text-lg mb-4 flex items-center gap-2">
@@ -158,6 +165,7 @@ const TripPlanner = () => {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>
