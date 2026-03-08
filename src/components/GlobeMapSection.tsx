@@ -525,13 +525,10 @@ function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => v
 
   return (
     <>
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[5, 3, 5]} intensity={1.4} color="#ffffff" />
-      <directionalLight position={[-3, -2, -4]} intensity={0.2} color="#4488ff" />
-      <pointLight position={[3, 4, 2]} intensity={0.6} color="#E67514" distance={10} />
-      <pointLight position={[-3, -2, 4]} intensity={0.3} color="#06923E" distance={8} />
-
-      <Stars radius={80} depth={60} count={3000} factor={5} fade speed={0.8} />
+      <ambientLight intensity={1.2} />
+      <directionalLight position={[5, 3, 5]} intensity={2.0} color="#fffaf0" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.8} color="#87CEEB" />
+      <hemisphereLight args={["#87CEEB", "#e8dcc4", 0.6]} />
 
       <Suspense fallback={null}>
         <Earth autoRotate={!isInteracting && !selectedDest} />
