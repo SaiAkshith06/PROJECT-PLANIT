@@ -1,17 +1,26 @@
 import { motion } from "framer-motion";
+import heroImage from "@/assets/hero-travel.jpg";
+import { useState } from "react";
 
 const HeroSection = () => {
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
   return (
     <section className="relative pt-16 overflow-hidden">
       <div className="absolute inset-0">
+        {/* Fallback image shown until video loads */}
+        {!videoLoaded && (
+          <img src={heroImage} alt="Travel destination" className="w-full h-full object-cover" />
+        )}
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="w-full h-full object-cover"
+          onCanPlay={() => setVideoLoaded(true)}
+          className={`w-full h-full object-cover absolute inset-0 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
         >
-          <source src="https://cdn.pixabay.com/video/2023/07/22/173039-847612547_large.mp4" type="video/mp4" />
+          <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
       </div>
