@@ -46,7 +46,7 @@ const TripPlanner = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Map */}
-            <div className="lg:col-span-4 h-[500px] lg:h-auto lg:min-h-[700px]">
+            <div className={`h-[500px] lg:h-auto lg:min-h-[700px] ${itinerary ? "lg:col-span-4" : "lg:col-span-5"}`}>
               <MapSection
                 center={data.coords}
                 zoom={10}
