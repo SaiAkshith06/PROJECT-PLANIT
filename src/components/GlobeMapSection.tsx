@@ -1,123 +1,54 @@
 import { useRef, useState, useCallback, useMemo, useEffect, Suspense } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Html, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- Types ---
-interface Destination {
-  name: string;
-  description: string;
+interface ClickedLocation {
   lat: number;
   lng: number;
-  sights?: { name: string; lat: number; lng: number }[];
+  name: string;
+  isInIndia: boolean;
+  position: THREE.Vector3;
 }
 
 interface GlobeMapSectionProps {
-  onLocationClick?: (name: string) => void;
+  onLocationClick?: (name: string, isInIndia: boolean) => void;
 }
 
-// --- Data ---
-const destinations: Destination[] = [
-  {
-    name: "Goa",
-    description: "Beach paradise with vibrant nightlife.",
-    lat: 15.2993,
-    lng: 74.124,
-    sights: [
-      { name: "Baga Beach", lat: 15.5554, lng: 73.7514 },
-      { name: "Fort Aguada", lat: 15.4923, lng: 73.7736 },
-      { name: "Basilica of Bom Jesus", lat: 15.5009, lng: 73.9116 },
-    ],
-  },
-  {
-    name: "Manali",
-    description: "Mountain town for adventure lovers.",
-    lat: 32.2396,
-    lng: 77.1887,
-    sights: [
-      { name: "Solang Valley", lat: 32.3167, lng: 77.1567 },
-      { name: "Rohtang Pass", lat: 32.3722, lng: 77.2478 },
-      { name: "Hadimba Temple", lat: 32.2427, lng: 77.1695 },
-    ],
-  },
-  {
-    name: "Kerala",
-    description: "God's Own Country — backwaters & spice gardens.",
-    lat: 10.8505,
-    lng: 76.2711,
-    sights: [
-      { name: "Alleppey Backwaters", lat: 9.4981, lng: 76.3388 },
-      { name: "Munnar Tea Gardens", lat: 10.0889, lng: 77.0595 },
-      { name: "Fort Kochi", lat: 9.9658, lng: 76.2421 },
-    ],
-  },
-  {
-    name: "Delhi",
-    description: "Capital city rich in Mughal heritage.",
-    lat: 28.6139,
-    lng: 77.209,
-    sights: [
-      { name: "Red Fort", lat: 28.6562, lng: 77.241 },
-      { name: "Qutub Minar", lat: 28.5245, lng: 77.1855 },
-      { name: "India Gate", lat: 28.6129, lng: 77.2295 },
-    ],
-  },
-  {
-    name: "Mumbai",
-    description: "City of dreams and Bollywood.",
-    lat: 19.076,
-    lng: 72.8777,
-    sights: [
-      { name: "Gateway of India", lat: 18.9219, lng: 72.8347 },
-      { name: "Marine Drive", lat: 18.9432, lng: 72.8235 },
-      { name: "Elephanta Caves", lat: 18.9633, lng: 72.9315 },
-    ],
-  },
-  {
-    name: "Agra",
-    description: "Home of the iconic Taj Mahal.",
-    lat: 27.1767,
-    lng: 78.0081,
-    sights: [
-      { name: "Taj Mahal", lat: 27.1751, lng: 78.0421 },
-      { name: "Agra Fort", lat: 27.1795, lng: 78.0211 },
-      { name: "Fatehpur Sikri", lat: 27.0945, lng: 77.661 },
-    ],
-  },
-  {
-    name: "Jaipur",
-    description: "The Pink City of royal palaces.",
-    lat: 26.9124,
-    lng: 75.7873,
-    sights: [
-      { name: "Hawa Mahal", lat: 26.9239, lng: 75.8267 },
-      { name: "Amber Fort", lat: 26.9855, lng: 75.8513 },
-      { name: "City Palace", lat: 26.9258, lng: 75.8237 },
-    ],
-  },
-  {
-    name: "Bali",
-    description: "Island of the Gods — temples & rice terraces.",
-    lat: -8.3405,
-    lng: 115.092,
-    sights: [
-      { name: "Uluwatu Temple", lat: -8.8291, lng: 115.0849 },
-      { name: "Tegallalang Rice Terrace", lat: -8.4312, lng: 115.2793 },
-      { name: "Tanah Lot", lat: -8.6213, lng: 115.0868 },
-    ],
-  },
-  {
-    name: "Paris",
-    description: "The City of Light — art, fashion & romance.",
-    lat: 48.8566,
-    lng: 2.3522,
-    sights: [
-      { name: "Eiffel Tower", lat: 48.8584, lng: 2.2945 },
-      { name: "Louvre Museum", lat: 48.8606, lng: 2.3376 },
-      { name: "Notre-Dame", lat: 48.853, lng: 2.3499 },
-    ],
-  },
+// --- Indian cities for nearest-match ---
+const indianCities = [
+  { name: "Mumbai", lat: 19.076, lng: 72.8777 },
+  { name: "Delhi", lat: 28.6139, lng: 77.209 },
+  { name: "Bangalore", lat: 12.9716, lng: 77.5946 },
+  { name: "Chennai", lat: 13.0827, lng: 80.2707 },
+  { name: "Kolkata", lat: 22.5726, lng: 88.3639 },
+  { name: "Hyderabad", lat: 17.385, lng: 78.4867 },
+  { name: "Pune", lat: 18.5204, lng: 73.8567 },
+  { name: "Ahmedabad", lat: 23.0225, lng: 72.5714 },
+  { name: "Jaipur", lat: 26.9124, lng: 75.7873 },
+  { name: "Goa", lat: 15.2993, lng: 74.124 },
+  { name: "Kerala", lat: 10.8505, lng: 76.2711 },
+  { name: "Manali", lat: 32.2396, lng: 77.1887 },
+  { name: "Agra", lat: 27.1767, lng: 78.0081 },
+  { name: "Varanasi", lat: 25.3176, lng: 82.9739 },
+  { name: "Udaipur", lat: 24.5854, lng: 73.7125 },
+  { name: "Shimla", lat: 31.1048, lng: 77.1734 },
+  { name: "Rishikesh", lat: 30.0869, lng: 78.2676 },
+  { name: "Amritsar", lat: 31.634, lng: 74.8723 },
+  { name: "Jodhpur", lat: 26.2389, lng: 73.0243 },
+  { name: "Darjeeling", lat: 27.0410, lng: 88.2663 },
+  { name: "Leh", lat: 34.1526, lng: 77.5771 },
+  { name: "Mysore", lat: 12.2958, lng: 76.6394 },
+  { name: "Coorg", lat: 12.3375, lng: 75.8069 },
+  { name: "Ooty", lat: 11.4102, lng: 76.6950 },
+  { name: "Kochi", lat: 9.9312, lng: 76.2673 },
+  { name: "Jaisalmer", lat: 26.9157, lng: 70.9083 },
+  { name: "Gangtok", lat: 27.3389, lng: 88.6065 },
+  { name: "Srinagar", lat: 34.0837, lng: 74.7973 },
+  { name: "Bhopal", lat: 23.2599, lng: 77.4126 },
+  { name: "Lucknow", lat: 26.8467, lng: 80.9462 },
 ];
 
 // --- Helpers ---
@@ -131,14 +62,44 @@ function latLngToVector3(lat: number, lng: number, radius: number): THREE.Vector
   );
 }
 
+function vector3ToLatLng(point: THREE.Vector3, radius: number): { lat: number; lng: number } {
+  const normalized = point.clone().normalize().multiplyScalar(radius);
+  const lat = 90 - Math.acos(normalized.y / radius) * (180 / Math.PI);
+  const lng = -(Math.atan2(normalized.z, -normalized.x) * (180 / Math.PI)) - 180;
+  return { lat, lng: ((lng % 360) + 540) % 360 - 180 };
+}
+
+function isInIndia(lat: number, lng: number): boolean {
+  return lat >= 6.5 && lat <= 35.5 && lng >= 68.0 && lng <= 97.5;
+}
+
+function findNearestCity(lat: number, lng: number): string {
+  let nearest = indianCities[0];
+  let minDist = Infinity;
+  for (const city of indianCities) {
+    const d = Math.pow(city.lat - lat, 2) + Math.pow(city.lng - lng, 2);
+    if (d < minDist) {
+      minDist = d;
+      nearest = city;
+    }
+  }
+  return nearest.name;
+}
+
 function latLngToSpherical(lat: number, lng: number): { phi: number; theta: number } {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lng + 180) * (Math.PI / 180);
   return { phi, theta };
 }
 
-// --- Globe Earth with slow auto-rotate ---
-function Earth({ autoRotate }: { autoRotate: boolean }) {
+// --- Globe Earth ---
+function Earth({
+  autoRotate,
+  onGlobeClick,
+}: {
+  autoRotate: boolean;
+  onGlobeClick: (point: THREE.Vector3) => void;
+}) {
   const meshRef = useRef<THREE.Mesh>(null);
   const texture = useTexture("https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg");
   const bumpMap = useTexture("https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png");
@@ -149,8 +110,22 @@ function Earth({ autoRotate }: { autoRotate: boolean }) {
     }
   });
 
+  const handleClick = useCallback(
+    (e: ThreeEvent<MouseEvent>) => {
+      e.stopPropagation();
+      if (e.point) {
+        // Transform the intersection point from world space to the mesh's local space
+        const localPoint = meshRef.current
+          ? meshRef.current.worldToLocal(e.point.clone())
+          : e.point;
+        onGlobeClick(localPoint);
+      }
+    },
+    [onGlobeClick]
+  );
+
   return (
-    <mesh ref={meshRef}>
+    <mesh ref={meshRef} onClick={handleClick}>
       <sphereGeometry args={[2, 64, 64]} />
       <meshPhysicalMaterial
         map={texture}
@@ -165,18 +140,15 @@ function Earth({ autoRotate }: { autoRotate: boolean }) {
   );
 }
 
-// --- Atmosphere glow (multi-layer) ---
+// --- Atmosphere glow ---
 function Atmosphere() {
   const vertexShader = `
     varying vec3 vNormal;
-    varying vec3 vWorldPos;
     void main() {
       vNormal = normalize(normalMatrix * normal);
-      vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `;
-
   const outerFragment = `
     varying vec3 vNormal;
     void main() {
@@ -184,7 +156,6 @@ function Atmosphere() {
       gl_FragColor = vec4(0.25, 0.55, 1.0, 1.0) * intensity * 0.8;
     }
   `;
-
   const innerFragment = `
     varying vec3 vNormal;
     void main() {
@@ -219,226 +190,108 @@ function Atmosphere() {
   );
 }
 
-// --- Glowing Marker Pin ---
-function MarkerPin({
-  dest,
-  isSelected,
-  onClick,
-  cameraDistance,
-}: {
-  dest: Destination;
-  isSelected: boolean;
-  onClick: () => void;
-  cameraDistance: number;
-}) {
-  const position = useMemo(
-    () => latLngToVector3(dest.lat, dest.lng, 2.02),
-    [dest.lat, dest.lng]
-  );
+// --- Ripple Marker (placed on click) ---
+function RippleMarker({ location }: { location: ClickedLocation }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+  const ring3Ref = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
 
-  const markerRef = useRef<THREE.Group>(null);
-  const pulseRef = useRef<THREE.Mesh>(null);
-  const outerPulseRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
+  const baseColor = location.isInIndia ? "#E67514" : "#ef4444";
 
-  // Pulse + glow animation
   useFrame(() => {
-    if (!markerRef.current) return;
-    const t = Date.now() * 0.004;
-    const pulse = 1 + Math.sin(t) * 0.12;
+    const t = Date.now() * 0.003;
 
-    if (isSelected) {
-      markerRef.current.scale.setScalar(pulse * 1.15);
-    } else if (hovered) {
-      markerRef.current.scale.setScalar(1.4);
-    } else {
-      markerRef.current.scale.setScalar(1);
+    if (coreRef.current) {
+      const pulse = 1 + Math.sin(t * 2) * 0.15;
+      coreRef.current.scale.setScalar(pulse);
     }
 
-    // Outer pulse ring
-    if (pulseRef.current) {
-      const ringScale = 1 + Math.sin(t * 1.2) * 0.3;
-      pulseRef.current.scale.setScalar(ringScale);
-      (pulseRef.current.material as THREE.MeshBasicMaterial).opacity =
-        0.4 - Math.sin(t * 1.2) * 0.25;
-    }
-
-    if (outerPulseRef.current) {
-      const outerScale = 1.2 + Math.sin(t * 0.8) * 0.5;
-      outerPulseRef.current.scale.setScalar(outerScale);
-      (outerPulseRef.current.material as THREE.MeshBasicMaterial).opacity =
-        0.15 - Math.sin(t * 0.8) * 0.1;
-    }
+    // Staggered ripple rings
+    [ring1Ref, ring2Ref, ring3Ref].forEach((ref, i) => {
+      if (ref.current) {
+        const offset = i * 0.7;
+        const phase = ((t + offset) % 2) / 2; // 0 to 1
+        const scale = 1 + phase * 2.5;
+        ref.current.scale.setScalar(scale);
+        (ref.current.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.5 * (1 - phase));
+      }
+    });
   });
 
-  const showLabel = cameraDistance < 6;
-  const showSights = isSelected && cameraDistance < 4;
-  const baseColor = isSelected ? "#E67514" : "#06923E";
+  // Orient marker to face outward from globe center
+  const normal = location.position.clone().normalize();
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(
+    new THREE.Vector3(0, 1, 0),
+    normal
+  );
 
   return (
-    <group ref={markerRef} position={position}>
-      {/* Outer glow pulse */}
-      <mesh ref={outerPulseRef} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.06, 0.1, 32]} />
-        <meshBasicMaterial
-          color={baseColor}
-          transparent
-          opacity={0.15}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-
-      {/* Inner pulse ring */}
-      <mesh ref={pulseRef} rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.04, 0.065, 32]} />
-        <meshBasicMaterial
-          color={baseColor}
-          transparent
-          opacity={0.4}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-
-      {/* Core glowing pin */}
-      <mesh
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
-        onPointerOver={() => {
-          setHovered(true);
-          document.body.style.cursor = "pointer";
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          document.body.style.cursor = "default";
-        }}
-      >
-        <sphereGeometry args={[0.032, 16, 16]} />
+    <group ref={groupRef} position={location.position} quaternion={quaternion}>
+      {/* Core glowing dot */}
+      <mesh ref={coreRef}>
+        <sphereGeometry args={[0.035, 16, 16]} />
         <meshStandardMaterial
           color={baseColor}
           emissive={baseColor}
-          emissiveIntensity={isSelected ? 1.5 : hovered ? 1.0 : 0.6}
+          emissiveIntensity={1.8}
           toneMapped={false}
         />
       </mesh>
 
-      {/* Pin highlight */}
-      <mesh position={[0, 0.01, 0]}>
+      {/* White highlight */}
+      <mesh position={[0, 0.015, 0]}>
         <sphereGeometry args={[0.012, 12, 12]} />
-        <meshBasicMaterial color="white" transparent opacity={0.7} />
+        <meshBasicMaterial color="white" transparent opacity={0.8} />
       </mesh>
 
-      {/* Tooltip / Label */}
-      {(showLabel || hovered) && (
-        <Html
-          position={[0, 0.1, 0]}
-          center
-          distanceFactor={3}
-          style={{ pointerEvents: "none" }}
-        >
-          <div
-            style={{
-              background: isSelected
-                ? "linear-gradient(135deg, hsl(27 90% 49%), hsl(27 85% 38%))"
-                : hovered
-                ? "linear-gradient(135deg, hsl(153 90% 30%), hsl(153 80% 22%))"
-                : "hsl(0 0% 10% / 0.88)",
-              color: "white",
-              padding: "5px 10px",
-              borderRadius: "8px",
-              fontSize: "11px",
-              fontWeight: 700,
-              fontFamily: "'Alfa Slab One', serif",
-              whiteSpace: "nowrap",
-              boxShadow: isSelected
-                ? "0 4px 20px hsl(27 90% 49% / 0.5), 0 0 10px hsl(27 90% 49% / 0.3)"
-                : "0 4px 16px rgba(0,0,0,0.4)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              backdropFilter: "blur(8px)",
-              transform: "translateY(-8px)",
-              transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
-            }}
-          >
-            {dest.name}
-            {hovered && !isSelected && (
-              <span style={{ opacity: 0.6, fontSize: "9px", marginLeft: 6 }}>
-                Click to explore
-              </span>
-            )}
-          </div>
-        </Html>
-      )}
+      {/* Ripple rings */}
+      {[ring1Ref, ring2Ref, ring3Ref].map((ref, i) => (
+        <mesh key={i} ref={ref} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.04, 0.055, 32]} />
+          <meshBasicMaterial
+            color={baseColor}
+            transparent
+            opacity={0.4}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
 
-      {/* Sightseeing markers */}
-      {showSights &&
-        dest.sights?.map((sight) => (
-          <SightMarker key={sight.name} sight={sight} />
-        ))}
-    </group>
-  );
-}
-
-// --- Sight Marker ---
-function SightMarker({ sight }: { sight: { name: string; lat: number; lng: number } }) {
-  const position = useMemo(
-    () => latLngToVector3(sight.lat, sight.lng, 2.035),
-    [sight.lat, sight.lng]
-  );
-  const pulseRef = useRef<THREE.Mesh>(null);
-
-  useFrame(() => {
-    if (pulseRef.current) {
-      const t = Date.now() * 0.005;
-      (pulseRef.current.material as THREE.MeshBasicMaterial).opacity =
-        0.3 + Math.sin(t) * 0.2;
-    }
-  });
-
-  return (
-    <group position={position}>
-      <mesh ref={pulseRef}>
-        <sphereGeometry args={[0.018, 12, 12]} />
-        <meshBasicMaterial color="#60A5FA" transparent opacity={0.5} />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[0.01, 12, 12]} />
-        <meshStandardMaterial
-          color="#3B82F6"
-          emissive="#3B82F6"
-          emissiveIntensity={0.8}
-          toneMapped={false}
-        />
-      </mesh>
-      <Html position={[0, 0.045, 0]} center distanceFactor={2.5} style={{ pointerEvents: "none" }}>
+      {/* Label */}
+      <Html position={[0, 0.12, 0]} center distanceFactor={3} style={{ pointerEvents: "none" }}>
         <div
           style={{
-            background: "linear-gradient(135deg, hsl(220 80% 50% / 0.92), hsl(220 70% 40% / 0.92))",
+            background: location.isInIndia
+              ? "linear-gradient(135deg, hsl(27 90% 49%), hsl(27 85% 38%))"
+              : "linear-gradient(135deg, hsl(0 70% 50%), hsl(0 60% 40%))",
             color: "white",
-            padding: "3px 8px",
-            borderRadius: "6px",
-            fontSize: "9px",
-            fontWeight: 600,
+            padding: "5px 12px",
+            borderRadius: "8px",
+            fontSize: "11px",
+            fontWeight: 700,
+            fontFamily: "'Alfa Slab One', serif",
             whiteSpace: "nowrap",
-            boxShadow: "0 2px 10px rgba(59,130,246,0.4)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            backdropFilter: "blur(4px)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            backdropFilter: "blur(8px)",
           }}
         >
-          {sight.name}
+          {location.name}
         </div>
       </Html>
     </group>
   );
 }
 
-// --- Camera Controller with cinematic fly-in ---
+// --- Camera Controller ---
 function CameraController({
-  targetDest,
+  targetLatLng,
   onDistanceChange,
   onInteracting,
 }: {
-  targetDest: Destination | null;
+  targetLatLng: { lat: number; lng: number } | null;
   onDistanceChange: (d: number) => void;
   onInteracting: (interacting: boolean) => void;
 }) {
@@ -450,9 +303,9 @@ function CameraController({
   const interactingTimeout = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!targetDest) return;
+    if (!targetLatLng) return;
 
-    const { phi, theta } = latLngToSpherical(targetDest.lat, targetDest.lng);
+    const { phi, theta } = latLngToSpherical(targetLatLng.lat, targetLatLng.lng);
     const dist = 3.2;
     targetPos.current.set(
       -(dist * Math.sin(phi) * Math.cos(theta)),
@@ -462,18 +315,16 @@ function CameraController({
     isAnimating.current = true;
     animProgress.current = 0;
     onInteracting(true);
-  }, [targetDest]);
+  }, [targetLatLng]);
 
   useFrame((_, delta) => {
     if (!controlsRef.current) return;
-
     const dist = camera.position.length();
     onDistanceChange(dist);
 
     if (isAnimating.current) {
       animProgress.current += delta * 0.6;
       const t = Math.min(animProgress.current, 1);
-      // Smooth ease-in-out for cinematic feel
       const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
       camera.position.lerp(targetPos.current, eased * 0.06);
@@ -510,15 +361,30 @@ function CameraController({
 }
 
 // --- Scene ---
-function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => void }) {
-  const [selectedDest, setSelectedDest] = useState<Destination | null>(null);
+function GlobeScene({
+  onLocationClick,
+}: {
+  onLocationClick?: (name: string, isInIndia: boolean) => void;
+}) {
+  const [clickedLocation, setClickedLocation] = useState<ClickedLocation | null>(null);
   const [cameraDistance, setCameraDistance] = useState(5);
   const [isInteracting, setIsInteracting] = useState(false);
+  const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number } | null>(null);
 
-  const handleDestClick = useCallback(
-    (dest: Destination) => {
-      setSelectedDest(dest);
-      onLocationClick?.(dest.name);
+  const handleGlobeClick = useCallback(
+    (point: THREE.Vector3) => {
+      const { lat, lng } = vector3ToLatLng(point, 2);
+      const inIndia = isInIndia(lat, lng);
+      const name = inIndia ? findNearestCity(lat, lng) : "Outside India";
+      const position = latLngToVector3(lat, lng, 2.03);
+
+      const location: ClickedLocation = { lat, lng, name, isInIndia: inIndia, position };
+      setClickedLocation(location);
+      onLocationClick?.(name, inIndia);
+
+      if (inIndia) {
+        setFlyTarget({ lat, lng });
+      }
     },
     [onLocationClick]
   );
@@ -531,22 +397,17 @@ function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => v
       <hemisphereLight args={["#87CEEB", "#e8dcc4", 0.6]} />
 
       <Suspense fallback={null}>
-        <Earth autoRotate={!isInteracting && !selectedDest} />
+        <Earth
+          autoRotate={!isInteracting && !clickedLocation}
+          onGlobeClick={handleGlobeClick}
+        />
       </Suspense>
       <Atmosphere />
 
-      {destinations.map((dest) => (
-        <MarkerPin
-          key={dest.name}
-          dest={dest}
-          isSelected={selectedDest?.name === dest.name}
-          onClick={() => handleDestClick(dest)}
-          cameraDistance={cameraDistance}
-        />
-      ))}
+      {clickedLocation && <RippleMarker location={clickedLocation} />}
 
       <CameraController
-        targetDest={selectedDest}
+        targetLatLng={flyTarget}
         onDistanceChange={setCameraDistance}
         onInteracting={setIsInteracting}
       />
@@ -566,7 +427,8 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
       style={{
         height: "600px",
         borderRadius: "50% / 28%",
-        background: "radial-gradient(ellipse at 50% 40%, hsl(205 60% 85%) 0%, hsl(210 50% 72%) 50%, hsl(215 40% 60%) 100%)",
+        background:
+          "radial-gradient(ellipse at 50% 40%, hsl(205 60% 85%) 0%, hsl(210 50% 72%) 50%, hsl(215 40% 60%) 100%)",
         boxShadow: [
           "0 0 80px 20px hsl(210 40% 70% / 0.3)",
           "0 20px 60px -10px hsl(210 30% 50% / 0.3)",
@@ -575,21 +437,23 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
         border: "1px solid hsl(210 30% 80% / 0.6)",
       }}
     >
-      {/* Glassmorphism rim highlight */}
+      {/* Glassmorphism rim */}
       <div
         className="absolute inset-0 pointer-events-none z-10"
         style={{
           borderRadius: "50% / 28%",
-          background: "linear-gradient(160deg, hsl(210 60% 95% / 0.3) 0%, transparent 40%, transparent 60%, hsl(210 60% 95% / 0.1) 100%)",
+          background:
+            "linear-gradient(160deg, hsl(210 60% 95% / 0.3) 0%, transparent 40%, transparent 60%, hsl(210 60% 95% / 0.1) 100%)",
           border: "1px solid hsl(210 40% 85% / 0.2)",
         }}
       />
 
-      {/* Top highlight reflection */}
+      {/* Top highlight */}
       <div
         className="absolute top-0 left-1/4 right-1/4 h-px pointer-events-none z-10"
         style={{
-          background: "linear-gradient(90deg, transparent 0%, hsl(210 60% 95% / 0.6) 50%, transparent 100%)",
+          background:
+            "linear-gradient(90deg, transparent 0%, hsl(210 60% 95% / 0.6) 50%, transparent 100%)",
         }}
       />
 
@@ -602,7 +466,7 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
         <GlobeScene onLocationClick={onLocationClick} />
       </Canvas>
 
-      {/* Bottom vignette */}
+      {/* Vignettes */}
       <div
         className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none z-10"
         style={{
@@ -610,8 +474,6 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
           borderRadius: "0 0 50% 50% / 0 0 28% 28%",
         }}
       />
-
-      {/* Top vignette */}
       <div
         className="absolute top-0 left-0 right-0 h-16 pointer-events-none z-10"
         style={{
@@ -619,19 +481,13 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
           borderRadius: "50% 50% 0 0 / 28% 28% 0 0",
         }}
       />
-
-      {/* Side vignettes */}
       <div
         className="absolute inset-y-0 left-0 w-16 pointer-events-none z-10"
-        style={{
-          background: "linear-gradient(to right, hsl(210 40% 65% / 0.5) 0%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(to right, hsl(210 40% 65% / 0.5) 0%, transparent 100%)" }}
       />
       <div
         className="absolute inset-y-0 right-0 w-16 pointer-events-none z-10"
-        style={{
-          background: "linear-gradient(to left, hsl(210 40% 65% / 0.5) 0%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(to left, hsl(210 40% 65% / 0.5) 0%, transparent 100%)" }}
       />
     </motion.div>
   );
