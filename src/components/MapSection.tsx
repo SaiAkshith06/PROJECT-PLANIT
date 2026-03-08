@@ -14,8 +14,10 @@ const defaultMarkers = [
   { pos: [15.2993, 74.124] as [number, number], name: "Goa" },
   { pos: [32.2396, 77.1887] as [number, number], name: "Manali" },
   { pos: [10.8505, 76.2711] as [number, number], name: "Kerala" },
-  { pos: [-8.3405, 115.092] as [number, number], name: "Bali" },
-  { pos: [48.8566, 2.3522] as [number, number], name: "Paris" },
+  { pos: [28.6139, 77.209] as [number, number], name: "Delhi" },
+  { pos: [19.076, 72.8777] as [number, number], name: "Mumbai" },
+  { pos: [27.1767, 78.0081] as [number, number], name: "Agra" },
+  { pos: [26.9124, 75.7873] as [number, number], name: "Jaipur" },
 ];
 
 interface MapSectionProps {
@@ -26,8 +28,8 @@ interface MapSectionProps {
 }
 
 const MapSection = ({
-  center = [20.5937, 78.9629],
-  zoom = 4,
+  center = [22.5937, 78.9629],
+  zoom = 5,
   className = "",
   extraMarkers,
 }: MapSectionProps) => {
