@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useMemo, useEffect, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Html, useTexture, Stars } from "@react-three/drei";
+import { OrbitControls, Html, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -525,13 +525,10 @@ function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => v
 
   return (
     <>
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[5, 3, 5]} intensity={1.4} color="#ffffff" />
-      <directionalLight position={[-3, -2, -4]} intensity={0.2} color="#4488ff" />
-      <pointLight position={[3, 4, 2]} intensity={0.6} color="#E67514" distance={10} />
-      <pointLight position={[-3, -2, 4]} intensity={0.3} color="#06923E" distance={8} />
-
-      <Stars radius={80} depth={60} count={3000} factor={5} fade speed={0.8} />
+      <ambientLight intensity={1.2} />
+      <directionalLight position={[5, 3, 5]} intensity={2.0} color="#fffaf0" />
+      <directionalLight position={[-3, 2, -4]} intensity={0.8} color="#87CEEB" />
+      <hemisphereLight args={["#87CEEB", "#e8dcc4", 0.6]} />
 
       <Suspense fallback={null}>
         <Earth autoRotate={!isInteracting && !selectedDest} />
@@ -569,13 +566,13 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
       style={{
         height: "600px",
         borderRadius: "50% / 28%",
-        background: "radial-gradient(ellipse at 40% 40%, hsl(220 40% 10%) 0%, hsl(220 50% 4%) 60%, hsl(220 60% 2%) 100%)",
+        background: "radial-gradient(ellipse at 50% 40%, hsl(205 60% 85%) 0%, hsl(210 50% 72%) 50%, hsl(215 40% 60%) 100%)",
         boxShadow: [
-          "0 0 80px 20px hsl(220 60% 15% / 0.25)",
-          "0 20px 60px -10px hsl(220 50% 8% / 0.6)",
-          "inset 0 0 120px 40px hsl(220 50% 6% / 0.4)",
+          "0 0 80px 20px hsl(210 40% 70% / 0.3)",
+          "0 20px 60px -10px hsl(210 30% 50% / 0.3)",
+          "inset 0 0 100px 30px hsl(210 50% 90% / 0.2)",
         ].join(", "),
-        border: "1px solid hsl(220 30% 20% / 0.5)",
+        border: "1px solid hsl(210 30% 80% / 0.6)",
       }}
     >
       {/* Glassmorphism rim highlight */}
@@ -583,8 +580,8 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
         className="absolute inset-0 pointer-events-none z-10"
         style={{
           borderRadius: "50% / 28%",
-          background: "linear-gradient(160deg, hsl(220 60% 60% / 0.08) 0%, transparent 40%, transparent 60%, hsl(220 60% 60% / 0.04) 100%)",
-          border: "1px solid hsl(220 40% 40% / 0.12)",
+          background: "linear-gradient(160deg, hsl(210 60% 95% / 0.3) 0%, transparent 40%, transparent 60%, hsl(210 60% 95% / 0.1) 100%)",
+          border: "1px solid hsl(210 40% 85% / 0.2)",
         }}
       />
 
@@ -592,7 +589,7 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
       <div
         className="absolute top-0 left-1/4 right-1/4 h-px pointer-events-none z-10"
         style={{
-          background: "linear-gradient(90deg, transparent 0%, hsl(220 60% 80% / 0.3) 50%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, hsl(210 60% 95% / 0.6) 50%, transparent 100%)",
         }}
       />
 
@@ -609,7 +606,7 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
       <div
         className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to top, hsl(220 50% 3%) 0%, hsl(220 50% 3% / 0.6) 40%, transparent 100%)",
+          background: "linear-gradient(to top, hsl(210 40% 65% / 0.7) 0%, transparent 100%)",
           borderRadius: "0 0 50% 50% / 0 0 28% 28%",
         }}
       />
@@ -618,7 +615,7 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
       <div
         className="absolute top-0 left-0 right-0 h-16 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to bottom, hsl(220 50% 3% / 0.5) 0%, transparent 100%)",
+          background: "linear-gradient(to bottom, hsl(205 50% 80% / 0.4) 0%, transparent 100%)",
           borderRadius: "50% 50% 0 0 / 28% 28% 0 0",
         }}
       />
@@ -627,13 +624,13 @@ const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
       <div
         className="absolute inset-y-0 left-0 w-16 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to right, hsl(220 50% 3% / 0.6) 0%, transparent 100%)",
+          background: "linear-gradient(to right, hsl(210 40% 65% / 0.5) 0%, transparent 100%)",
         }}
       />
       <div
         className="absolute inset-y-0 right-0 w-16 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to left, hsl(220 50% 3% / 0.6) 0%, transparent 100%)",
+          background: "linear-gradient(to left, hsl(210 40% 65% / 0.5) 0%, transparent 100%)",
         }}
       />
     </motion.div>
