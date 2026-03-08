@@ -21,7 +21,7 @@ const HeroSection = () => {
           className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-700 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
         >
           {/* 4K nature/travel video streamed from CDN */}
-          <source src="https://cdn.pixabay.com/video/2024/08/01/224028_large.mp4" type="video/mp4" />
+          <source src="https://videos.pexels.com/video-files/3571264/3571264-uhd_3840_2160_30fps.mp4" type="video/mp4" />
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
