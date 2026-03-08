@@ -86,17 +86,12 @@ const TripInputSection = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-display font-bold text-foreground mb-2 flex items-center gap-2">
             <Globe className="w-6 h-6 text-primary" />
-            Explore India
+            Explore the World
           </h2>
           <p className="text-muted-foreground text-sm mb-6">
-            Click any location on the map to select it as your destination
+            Click any destination on the globe to select it for your trip
           </p>
-          <div className="h-[500px]">
-            <MapSection
-              interactive
-              onLocationClick={handleMapClick}
-            />
-          </div>
+          <GlobeMapSection onLocationClick={handleMapClick} />
           {destination && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
