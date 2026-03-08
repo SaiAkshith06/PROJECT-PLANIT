@@ -9,7 +9,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-32 md:py-44 text-center">
+      <div className="relative container mx-auto px-4 py-32 md:py-44 text-center z-10">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -29,6 +29,12 @@ const HeroSection = () => {
           Compare hotels, transport, and attractions — all in one place.
           Build your dream itinerary in minutes.
         </motion.p>
+      </div>
+
+      <div className="wave-container">
+        <div className="wave3" />
+        <div className="wave2" />
+        <div className="wave" />
       </div>
     </section>
   );
