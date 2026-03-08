@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import GlobeMapSection from "@/components/GlobeMapSection";
+import DetailedMapView from "@/components/DetailedMapView";
 import { Globe } from "lucide-react";
 
 const TripInputSection = () => {
@@ -13,6 +14,8 @@ const TripInputSection = () => {
   const [days, setDays] = useState("");
   const [budget, setBudget] = useState("");
   const [showRestriction, setShowRestriction] = useState(false);
+  const [mapMode, setMapMode] = useState(false);
+  const [mapTarget, setMapTarget] = useState<{ name: string; lat: number; lng: number } | null>(null);
 
   const handleGenerate = () => {
     const params = new URLSearchParams();
@@ -22,15 +25,29 @@ const TripInputSection = () => {
     navigate(`/planner?${params.toString()}`);
   };
 
-  const handleMapClick = useCallback((name: string, isInIndia: boolean) => {
+  const handleMapClick = useCallback((_name: string, isInIndia: boolean) => {
     if (isInIndia) {
-      setDestination(name);
       setShowRestriction(false);
     } else {
       setDestination("");
       setShowRestriction(true);
       setTimeout(() => setShowRestriction(false), 4000);
     }
+  }, []);
+
+  const handleZoomComplete = useCallback((name: string, lat: number, lng: number) => {
+    setDestination(name);
+    setMapTarget({ name, lat, lng });
+    setMapMode(true);
+  }, []);
+
+  const handleBackToGlobe = useCallback(() => {
+    setMapMode(false);
+    setMapTarget(null);
+  }, []);
+
+  const handleMapDestinationSelect = useCallback((name: string) => {
+    setDestination(name);
   }, []);
 
   return (
@@ -49,7 +66,7 @@ const TripInputSection = () => {
                   <MapPin className="w-4 h-4 text-primary" /> Destination
                 </label>
                 <Input
-                  placeholder="Click anywhere on the globe"
+                  placeholder="Click the globe or map to select"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   className="h-12 text-base"
@@ -102,22 +119,48 @@ const TripInputSection = () => {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur-sm mb-4">
               <Globe className="w-4 h-4 text-primary" />
               <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
-                Interactive Globe
+                {mapMode ? "Detailed Map" : "Interactive Globe"}
               </span>
             </div>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
-              Explore the World
+              {mapMode ? "Select Your Destination" : "Explore the World"}
             </h2>
             <p className="text-muted-foreground text-base max-w-lg mx-auto">
-              Spin the globe and click anywhere to explore — trip planning is available for destinations within India
+              {mapMode
+                ? "Click anywhere on the map to choose your exact destination in India"
+                : "Spin the globe and click anywhere in India to fly into the region"}
             </p>
           </motion.div>
 
-          <GlobeMapSection onLocationClick={handleMapClick} />
+          <AnimatePresence mode="wait">
+            {mapMode && mapTarget ? (
+              <DetailedMapView
+                key="map"
+                initialLat={mapTarget.lat}
+                initialLng={mapTarget.lng}
+                initialName={mapTarget.name}
+                onBack={handleBackToGlobe}
+                onDestinationSelect={handleMapDestinationSelect}
+              />
+            ) : (
+              <motion.div
+                key="globe"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                transition={{ duration: 0.5 }}
+              >
+                <GlobeMapSection
+                  onLocationClick={handleMapClick}
+                  onZoomComplete={handleZoomComplete}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Restriction message */}
           <AnimatePresence>
-            {showRestriction && (
+            {showRestriction && !mapMode && (
               <motion.div
                 initial={{ opacity: 0, y: 12, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -140,42 +183,6 @@ const TripInputSection = () => {
                     Trip planning is currently available only for destinations within{" "}
                     <span className="font-semibold text-foreground">India</span>.
                   </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Selected destination card */}
-          <AnimatePresence>
-            {destination && (
-              <motion.div
-                initial={{ opacity: 0, y: 16, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-6 mx-auto max-w-md"
-              >
-                <div
-                  className="rounded-2xl p-4 flex items-center justify-between border border-border"
-                  style={{
-                    background: "hsl(var(--card) / 0.8)",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: "0 8px 32px hsl(0 0% 0% / 0.1), 0 0 0 1px hsl(var(--border) / 0.5)",
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                      <MapPin className="w-4.5 h-4.5 text-primary" />
-                    </div>
-                    <div>
-                      <span className="font-display font-semibold text-foreground text-sm">{destination}</span>
-                      <span className="block text-muted-foreground text-xs">Selected destination</span>
-                    </div>
-                  </div>
-                  <Button size="sm" onClick={handleGenerate} className="gap-1.5 rounded-xl shadow-md">
-                    <Sparkles className="w-4 h-4" />
-                    Plan Trip
-                  </Button>
                 </div>
               </motion.div>
             )}
