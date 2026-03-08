@@ -4,6 +4,10 @@ import Navbar from "@/components/Navbar";
 import MapSection, { DAY_COLORS } from "@/components/MapSection";
 import type { MapMarker, RouteSegment, MapSectionHandle } from "@/components/MapSection";
 import { getDestinationData, generateItinerary } from "@/data/tripData";
+import { getCommunityItineraries, getMyItineraries, saveCustomItinerary, deleteCustomItinerary } from "@/data/communityItineraries";
+import type { CustomItinerary } from "@/data/communityItineraries";
+import UserItinerariesSection from "@/components/UserItinerariesSection";
+import ItineraryBuilder from "@/components/ItineraryBuilder";
 import { Star, Hotel, Plane, Camera, Calendar, IndianRupee, Play, Square } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,10 +26,20 @@ const TripPlanner = () => {
 
   const mapSectionRef = useRef<MapSectionHandle>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [currentAnimStep, setCurrentAnimStep] = useState<string>("");
+  const [currentAnimStep, setCurrentAnimStep] = useState("");
   const animationRef = useRef<NodeJS.Timeout[]>([]);
 
-  // Collect all locations from itinerary for animation
+  const [showBuilder, setShowBuilder] = useState(false);
+  const [myItineraries, setMyItineraries] = useState<CustomItinerary[]>([]);
+  const [viewingRoute, setViewingRoute] = useState<RouteSegment[] | null>(null);
+
+  // Load custom itineraries
+  useEffect(() => {
+    setMyItineraries(getMyItineraries().filter((it) => it.destination.toLowerCase() === dest.toLowerCase()));
+  }, [dest]);
+
+  const communityIts = useMemo(() => getCommunityItineraries(dest), [dest]);
+
   const allLocations = useMemo(() => {
     if (!itinerary) return [];
     const locs: { pos: [number, number]; name: string; description: string; dayLabel: string }[] = [];
@@ -42,7 +56,6 @@ const TripPlanner = () => {
     animationRef.current = [];
     setIsAnimating(false);
     setCurrentAnimStep("");
-    // Reset view
     mapSectionRef.current?.resetView(data.coords, 10);
   }, [data.coords]);
 
@@ -50,35 +63,24 @@ const TripPlanner = () => {
     if (allLocations.length === 0) return;
     stopAnimation();
     setIsAnimating(true);
-
+    setViewingRoute(null);
     const timeouts: NodeJS.Timeout[] = [];
-    const DELAY_PER_LOCATION = 3500;
-
+    const DELAY = 3500;
     allLocations.forEach((loc, i) => {
-      const t = setTimeout(() => {
+      timeouts.push(setTimeout(() => {
         setCurrentAnimStep(`${loc.dayLabel} — ${loc.name}`);
         mapSectionRef.current?.flyToMarker(loc.pos, loc.name, loc.description);
-      }, i * DELAY_PER_LOCATION);
-      timeouts.push(t);
+      }, i * DELAY));
     });
-
-    // End animation
-    const endT = setTimeout(() => {
+    timeouts.push(setTimeout(() => {
       setIsAnimating(false);
       setCurrentAnimStep("");
       mapSectionRef.current?.resetView(data.coords, 10);
-    }, allLocations.length * DELAY_PER_LOCATION + 2000);
-    timeouts.push(endT);
-
+    }, allLocations.length * DELAY + 2000));
     animationRef.current = timeouts;
   }, [allLocations, data.coords, stopAnimation]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      animationRef.current.forEach(clearTimeout);
-    };
-  }, []);
+  useEffect(() => () => { animationRef.current.forEach(clearTimeout); }, []);
 
   const mapMarkers: MapMarker[] = useMemo(() => {
     const markers: MapMarker[] = [
@@ -90,7 +92,7 @@ const TripPlanner = () => {
     return markers;
   }, [data]);
 
-  const routes: RouteSegment[] = useMemo(() => {
+  const itineraryRoutes: RouteSegment[] = useMemo(() => {
     if (!itinerary) return [];
     return itinerary
       .filter((day) => day.locations.length >= 2)
@@ -101,24 +103,51 @@ const TripPlanner = () => {
       }));
   }, [itinerary]);
 
+  // Use viewing route if set, otherwise itinerary routes
+  const activeRoutes = viewingRoute || itineraryRoutes;
+
+  const handleViewOnMap = useCallback((stops: { pos: [number, number]; name: string; description: string }[]) => {
+    if (stops.length < 2) return;
+    const route: RouteSegment = {
+      positions: stops.map((s) => s.pos),
+      color: "#E67514",
+      label: "Custom Route",
+    };
+    setViewingRoute([route]);
+    // Fly to first stop
+    mapSectionRef.current?.flyToMarker(stops[0].pos, stops[0].name, stops[0].description);
+  }, []);
+
+  const handleSaveItinerary = useCallback((it: CustomItinerary) => {
+    saveCustomItinerary(it);
+    setMyItineraries(getMyItineraries().filter((i) => i.destination.toLowerCase() === dest.toLowerCase()));
+    setShowBuilder(false);
+    // Show the new route on map
+    handleViewOnMap(it.stops.map((s) => ({ pos: s.coords, name: s.name, description: s.description })));
+  }, [dest, handleViewOnMap]);
+
+  const handleDeleteItinerary = useCallback((id: string) => {
+    deleteCustomItinerary(id);
+    setMyItineraries(getMyItineraries().filter((i) => i.destination.toLowerCase() === dest.toLowerCase()));
+  }, [dest]);
+
+  const clearViewingRoute = useCallback(() => {
+    setViewingRoute(null);
+    mapSectionRef.current?.resetView(data.coords, 10);
+  }, [data.coords]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="pt-20 px-4 pb-8">
         <div className="container mx-auto">
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              Trip to {data.name}
-            </h1>
+            <h1 className="text-2xl font-display font-bold text-foreground">Trip to {data.name}</h1>
             {days && (
-              <Badge variant="secondary" className="gap-1">
-                <Calendar className="w-3 h-3" /> {days} Days
-              </Badge>
+              <Badge variant="secondary" className="gap-1"><Calendar className="w-3 h-3" /> {days} Days</Badge>
             )}
             {budget && (
-              <Badge variant="secondary" className="gap-1">
-                <IndianRupee className="w-3 h-3" /> ₹{budget.toLocaleString()}
-              </Badge>
+              <Badge variant="secondary" className="gap-1"><IndianRupee className="w-3 h-3" /> ₹{budget.toLocaleString()}</Badge>
             )}
           </div>
 
@@ -131,9 +160,8 @@ const TripPlanner = () => {
                 zoom={10}
                 className="h-full"
                 extraMarkers={mapMarkers}
-                routes={routes}
+                routes={activeRoutes}
               />
-              {/* Animate step indicator */}
               {isAnimating && currentAnimStep && (
                 <div className="mt-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center gap-2">
                   <span className="relative flex h-2.5 w-2.5">
@@ -143,15 +171,19 @@ const TripPlanner = () => {
                   <span className="text-sm font-medium text-foreground">{currentAnimStep}</span>
                 </div>
               )}
-              {/* Route legend */}
-              {routes.length > 0 && !isAnimating && (
+              {viewingRoute && !isAnimating && (
+                <div className="mt-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center justify-between">
+                  <span className="text-xs font-medium text-foreground">Viewing custom route</span>
+                  <Button size="sm" variant="ghost" className="text-xs h-7" onClick={clearViewingRoute}>
+                    Back to itinerary
+                  </Button>
+                </div>
+              )}
+              {activeRoutes.length > 0 && !isAnimating && !viewingRoute && (
                 <div className="mt-3 flex flex-wrap gap-3">
-                  {routes.map((r, i) => (
+                  {activeRoutes.map((r, i) => (
                     <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span
-                        className="w-4 h-1 rounded-full inline-block"
-                        style={{ backgroundColor: r.color }}
-                      />
+                      <span className="w-4 h-1 rounded-full inline-block" style={{ backgroundColor: r.color }} />
                       {r.label}
                     </div>
                   ))}
@@ -163,15 +195,9 @@ const TripPlanner = () => {
             <div className={itinerary ? "lg:col-span-4" : "lg:col-span-6"}>
               <Tabs defaultValue="hotels" className="w-full">
                 <TabsList className="w-full grid grid-cols-3">
-                  <TabsTrigger value="hotels" className="gap-1.5">
-                    <Hotel className="w-4 h-4" /> Hotels
-                  </TabsTrigger>
-                  <TabsTrigger value="transport" className="gap-1.5">
-                    <Plane className="w-4 h-4" /> Transport
-                  </TabsTrigger>
-                  <TabsTrigger value="sights" className="gap-1.5">
-                    <Camera className="w-4 h-4" /> Sights
-                  </TabsTrigger>
+                  <TabsTrigger value="hotels" className="gap-1.5"><Hotel className="w-4 h-4" /> Hotels</TabsTrigger>
+                  <TabsTrigger value="transport" className="gap-1.5"><Plane className="w-4 h-4" /> Transport</TabsTrigger>
+                  <TabsTrigger value="sights" className="gap-1.5"><Camera className="w-4 h-4" /> Sights</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="hotels" className="space-y-4 mt-4">
@@ -235,9 +261,7 @@ const TripPlanner = () => {
                             <Star className="w-3.5 h-3.5 fill-current" />
                             <span className="text-xs font-medium">{a.rating}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {a.entryFee > 0 ? `₹${a.entryFee}` : "Free"}
-                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">{a.entryFee > 0 ? `₹${a.entryFee}` : "Free"}</p>
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{a.description}</p>
@@ -245,6 +269,15 @@ const TripPlanner = () => {
                   ))}
                 </TabsContent>
               </Tabs>
+
+              {/* User Itineraries Section */}
+              <UserItinerariesSection
+                communityItineraries={communityIts}
+                myItineraries={myItineraries}
+                onCreateNew={() => setShowBuilder(true)}
+                onViewOnMap={handleViewOnMap}
+                onDeleteMine={handleDeleteItinerary}
+              />
             </div>
 
             {/* Itinerary */}
@@ -263,39 +296,24 @@ const TripPlanner = () => {
                         onClick={isAnimating ? stopAnimation : startAnimation}
                         className="gap-1.5 text-xs"
                       >
-                        {isAnimating ? (
-                          <>
-                            <Square className="w-3 h-3" /> Stop
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-3 h-3" /> Animate Plan
-                          </>
-                        )}
+                        {isAnimating ? (<><Square className="w-3 h-3" /> Stop</>) : (<><Play className="w-3 h-3" /> Animate Plan</>)}
                       </Button>
                     )}
                   </div>
                   <div className="space-y-5">
                     {itinerary.map((day, dayIdx) => (
                       <div key={day.day} className="relative pl-6 border-l-2" style={{ borderColor: DAY_COLORS[dayIdx % DAY_COLORS.length] }}>
-                        <div
-                          className="absolute left-[-7px] top-0 w-3 h-3 rounded-full"
-                          style={{ backgroundColor: DAY_COLORS[dayIdx % DAY_COLORS.length] }}
-                        />
+                        <div className="absolute left-[-7px] top-0 w-3 h-3 rounded-full" style={{ backgroundColor: DAY_COLORS[dayIdx % DAY_COLORS.length] }} />
                         <h3 className="font-display font-semibold text-sm text-foreground mb-1.5">{day.title}</h3>
                         <ul className="space-y-1">
                           {day.activities.map((act, i) => (
-                            <li key={i} className="text-xs text-muted-foreground leading-relaxed">
-                              • {act}
-                            </li>
+                            <li key={i} className="text-xs text-muted-foreground leading-relaxed">• {act}</li>
                           ))}
                         </ul>
                         {day.locations.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1">
                             {day.locations.map((loc, i) => (
-                              <span key={i} className="text-[10px] bg-muted/30 text-muted-foreground rounded px-1.5 py-0.5">
-                                📍 {loc.name}
-                              </span>
+                              <span key={i} className="text-[10px] bg-muted/30 text-muted-foreground rounded px-1.5 py-0.5">📍 {loc.name}</span>
                             ))}
                           </div>
                         )}
@@ -308,6 +326,16 @@ const TripPlanner = () => {
           </div>
         </div>
       </div>
+
+      {/* Itinerary Builder Modal */}
+      {showBuilder && (
+        <ItineraryBuilder
+          destination={data.name}
+          attractions={data.attractions}
+          onSave={handleSaveItinerary}
+          onClose={() => setShowBuilder(false)}
+        />
+      )}
     </div>
   );
 };
