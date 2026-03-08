@@ -15,26 +15,17 @@ export default {
   	extend: {
   		fontFamily: {
 			display: [
-				'Sreda',
-				'sans-serif'
+				'Alfa Slab One',
+				'serif'
 			],
-  			body: [
-  				'Inter',
-  				'sans-serif'
-  			],
-  			sans: [
-  				'Inter',
-  				'ui-sans-serif',
-  				'system-ui',
-  				'-apple-system',
-  				'BlinkMacSystemFont',
-  				'Segoe UI',
-  				'Roboto',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
-  				'sans-serif'
-  			],
+			body: [
+				'Alfa Slab One',
+				'serif'
+			],
+			sans: [
+				'Alfa Slab One',
+				'serif'
+			],
   			serif: [
   				'Lora',
   				'ui-serif',
