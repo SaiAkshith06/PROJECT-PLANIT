@@ -15,13 +15,13 @@ export default {
   	extend: {
   		fontFamily: {
 			display: [
-				'Sreda',
-				'sans-serif'
+				'Alfa Slab One',
+				'serif'
 			],
-  			body: [
-  				'Inter',
-  				'sans-serif'
-  			],
+			body: [
+				'Alfa Slab One',
+				'serif'
+			],
   			sans: [
   				'Inter',
   				'ui-sans-serif',
