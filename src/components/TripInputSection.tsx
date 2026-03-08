@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Wallet, Sparkles } from "lucide-react";
+import { MapPin, Calendar, Wallet, Sparkles, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ const TripInputSection = () => {
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("");
   const [budget, setBudget] = useState("");
+  const [showRestriction, setShowRestriction] = useState(false);
 
   const handleGenerate = () => {
     const params = new URLSearchParams();
@@ -21,8 +22,15 @@ const TripInputSection = () => {
     navigate(`/planner?${params.toString()}`);
   };
 
-  const handleMapClick = useCallback((name: string) => {
-    setDestination(name);
+  const handleMapClick = useCallback((name: string, isInIndia: boolean) => {
+    if (isInIndia) {
+      setDestination(name);
+      setShowRestriction(false);
+    } else {
+      setDestination("");
+      setShowRestriction(true);
+      setTimeout(() => setShowRestriction(false), 4000);
+    }
   }, []);
 
   return (
@@ -41,7 +49,7 @@ const TripInputSection = () => {
                   <MapPin className="w-4 h-4 text-primary" /> Destination
                 </label>
                 <Input
-                  placeholder="Click the map or type here"
+                  placeholder="Click anywhere on the globe"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   className="h-12 text-base"
@@ -101,12 +109,43 @@ const TripInputSection = () => {
               Explore the World
             </h2>
             <p className="text-muted-foreground text-base max-w-lg mx-auto">
-              Spin the globe, zoom into destinations, and click any marker to start planning your trip
+              Spin the globe and click anywhere to explore — trip planning is available for destinations within India
             </p>
           </motion.div>
 
           <GlobeMapSection onLocationClick={handleMapClick} />
 
+          {/* Restriction message */}
+          <AnimatePresence>
+            {showRestriction && (
+              <motion.div
+                initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-6 mx-auto max-w-md"
+              >
+                <div
+                  className="rounded-2xl p-4 flex items-center gap-3 border border-destructive/30"
+                  style={{
+                    background: "hsl(var(--card) / 0.85)",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: "0 8px 32px hsl(0 0% 0% / 0.08)",
+                  }}
+                >
+                  <div className="w-9 h-9 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-4.5 h-4.5 text-destructive" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Trip planning is currently available only for destinations within{" "}
+                    <span className="font-semibold text-foreground">India</span>.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Selected destination card */}
           <AnimatePresence>
             {destination && (
               <motion.div
