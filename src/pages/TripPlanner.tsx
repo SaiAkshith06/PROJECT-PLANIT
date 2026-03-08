@@ -10,11 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const TripPlanner = () => {
   const [params] = useSearchParams();
   const dest = params.get("dest") || "Goa";
-  const days = parseInt(params.get("days") || "3");
-  const budget = parseInt(params.get("budget") || "50000");
+  const daysParam = params.get("days");
+  const budgetParam = params.get("budget");
+  const days = daysParam ? parseInt(daysParam) : null;
+  const budget = budgetParam ? parseInt(budgetParam) : null;
 
   const data = useMemo(() => getDestinationData(dest), [dest]);
-  const itinerary = useMemo(() => generateItinerary(data, days), [data, days]);
+  const itinerary = useMemo(() => days ? generateItinerary(data, days) : null, [data, days]);
 
   const allMapMarkers = [
     { pos: data.coords, name: data.name },

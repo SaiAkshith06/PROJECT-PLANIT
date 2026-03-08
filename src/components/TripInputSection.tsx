@@ -12,7 +12,11 @@ const TripInputSection = () => {
   const [budget, setBudget] = useState("");
 
   const handleGenerate = () => {
-    navigate(`/planner?dest=${encodeURIComponent(destination || "Goa")}&days=${days || 3}&budget=${budget || 50000}`);
+    const params = new URLSearchParams();
+    params.set("dest", destination || "Goa");
+    if (days) params.set("days", days);
+    if (budget) params.set("budget", budget);
+    navigate(`/planner?${params.toString()}`);
   };
 
   return (
