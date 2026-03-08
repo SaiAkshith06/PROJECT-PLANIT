@@ -1,18 +1,19 @@
 import { motion } from "framer-motion";
-import heroImage from "@/assets/hero-travel.jpg";
 
 const HeroSection = () => {
   return (
     <section className="relative pt-16 overflow-hidden">
       <div className="absolute inset-0">
-        <motion.img
-          src={heroImage}
-          alt="Travel destination"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
           className="w-full h-full object-cover"
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.15 }}
-          transition={{ duration: 20, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
-        />
+          poster=""
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-background" />
       </div>
 
