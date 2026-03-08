@@ -82,33 +82,65 @@ const TripInputSection = () => {
         </div>
       </section>
 
-      <section className="pb-16">
+      <section className="pb-20 pt-4">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-display font-bold text-foreground mb-2 flex items-center gap-2">
-            <Globe className="w-6 h-6 text-primary" />
-            Explore the World
-          </h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            Click any destination on the globe to select it for your trip
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-8"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur-sm mb-4">
+              <Globe className="w-4 h-4 text-primary" />
+              <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+                Interactive Globe
+              </span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
+              Explore the World
+            </h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">
+              Spin the globe, zoom into destinations, and click any marker to start planning your trip
+            </p>
+          </motion.div>
+
           <GlobeMapSection onLocationClick={handleMapClick} />
-          {destination && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 bg-card rounded-xl border border-border shadow-card p-4 flex items-center justify-between max-w-md"
-            >
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary" />
-                <span className="font-display font-semibold text-foreground">{destination}</span>
-                <span className="text-muted-foreground text-sm">selected</span>
-              </div>
-              <Button size="sm" onClick={handleGenerate} className="gap-1.5">
-                <Sparkles className="w-4 h-4" />
-                Plan Trip
-              </Button>
-            </motion.div>
-          )}
+
+          <AnimatePresence>
+            {destination && (
+              <motion.div
+                initial={{ opacity: 0, y: 16, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-6 mx-auto max-w-md"
+              >
+                <div
+                  className="rounded-2xl p-4 flex items-center justify-between border border-border"
+                  style={{
+                    background: "hsl(var(--card) / 0.8)",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: "0 8px 32px hsl(0 0% 0% / 0.1), 0 0 0 1px hsl(var(--border) / 0.5)",
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                      <MapPin className="w-4.5 h-4.5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-display font-semibold text-foreground text-sm">{destination}</span>
+                      <span className="block text-muted-foreground text-xs">Selected destination</span>
+                    </div>
+                  </div>
+                  <Button size="sm" onClick={handleGenerate} className="gap-1.5 rounded-xl shadow-md">
+                    <Sparkles className="w-4 h-4" />
+                    Plan Trip
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
     </>
