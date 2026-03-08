@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Star, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,16 +19,22 @@ const destinations = [
 
 const PopularDestinations = () => {
   const navigate = useNavigate();
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "start 0.3"],
+  });
+
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.4], [0, 1]);
+  const headerY = useTransform(scrollYProgress, [0, 0.4], [60, 0]);
 
   return (
-    <section className="py-20 bg-secondary/50 overflow-hidden">
+    <section ref={sectionRef} className="py-20 bg-secondary/50 overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-12"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          style={{ opacity: headerOpacity, y: headerY }}
         >
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-3">
             Popular Destinations
@@ -41,22 +48,25 @@ const PopularDestinations = () => {
           {destinations.map((dest, i) => (
             <motion.div
               key={dest.name}
-              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              initial={{ opacity: 0, y: 80, scale: 0.92 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-60px" }}
+              viewport={{ once: true, margin: "-40px" }}
               transition={{
-                duration: 0.6,
-                delay: i * 0.12,
-                ease: [0.22, 1, 0.36, 1],
+                duration: 0.8,
+                delay: i * 0.1,
+                ease: [0.25, 0.46, 0.45, 0.94],
               }}
+              whileHover={{ y: -8, transition: { duration: 0.3, ease: "easeOut" } }}
               onClick={() => navigate(`/planner?dest=${dest.name}&days=3&budget=50000`)}
-              className="group cursor-pointer bg-card rounded-xl overflow-hidden border border-border shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1"
+              className="group cursor-pointer bg-card rounded-xl overflow-hidden border border-border shadow-card hover:shadow-card-hover transition-shadow duration-500"
             >
               <div className="aspect-[4/5] overflow-hidden">
-                <img
+                <motion.img
                   src={dest.image}
                   alt={dest.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.08 }}
+                  transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
                 />
               </div>
               <div className="p-4">
