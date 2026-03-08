@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useMemo, useEffect, Suspense } from "rea
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Html, useTexture, Stars } from "@react-three/drei";
 import * as THREE from "three";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- Types ---
 interface Destination {
@@ -137,62 +137,89 @@ function latLngToSpherical(lat: number, lng: number): { phi: number; theta: numb
   return { phi, theta };
 }
 
-// --- Globe Earth ---
-function Earth() {
+// --- Globe Earth with slow auto-rotate ---
+function Earth({ autoRotate }: { autoRotate: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const texture = useTexture("https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg");
   const bumpMap = useTexture("https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png");
 
+  useFrame((_, delta) => {
+    if (meshRef.current && autoRotate) {
+      meshRef.current.rotation.y += delta * 0.05;
+    }
+  });
+
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[2, 64, 64]} />
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         map={texture}
         bumpMap={bumpMap}
-        bumpScale={0.03}
-        metalness={0.1}
-        roughness={0.7}
+        bumpScale={0.04}
+        metalness={0.05}
+        roughness={0.6}
+        clearcoat={0.3}
+        clearcoatRoughness={0.4}
       />
     </mesh>
   );
 }
 
-// --- Atmosphere glow ---
+// --- Atmosphere glow (multi-layer) ---
 function Atmosphere() {
-  const shaderRef = useRef<THREE.ShaderMaterial>(null);
-
   const vertexShader = `
     varying vec3 vNormal;
+    varying vec3 vWorldPos;
     void main() {
       vNormal = normalize(normalMatrix * normal);
+      vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `;
 
-  const fragmentShader = `
+  const outerFragment = `
     varying vec3 vNormal;
     void main() {
-      float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-      gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity;
+      float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
+      gl_FragColor = vec4(0.25, 0.55, 1.0, 1.0) * intensity * 0.8;
+    }
+  `;
+
+  const innerFragment = `
+    varying vec3 vNormal;
+    void main() {
+      float intensity = pow(0.55 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 1.8);
+      gl_FragColor = vec4(0.4, 0.75, 1.0, 1.0) * intensity * 0.4;
     }
   `;
 
   return (
-    <mesh scale={[1.15, 1.15, 1.15]}>
-      <sphereGeometry args={[2, 64, 64]} />
-      <shaderMaterial
-        ref={shaderRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        blending={THREE.AdditiveBlending}
-        side={THREE.BackSide}
-        transparent
-      />
-    </mesh>
+    <>
+      <mesh scale={[1.18, 1.18, 1.18]}>
+        <sphereGeometry args={[2, 64, 64]} />
+        <shaderMaterial
+          vertexShader={vertexShader}
+          fragmentShader={outerFragment}
+          blending={THREE.AdditiveBlending}
+          side={THREE.BackSide}
+          transparent
+        />
+      </mesh>
+      <mesh scale={[1.08, 1.08, 1.08]}>
+        <sphereGeometry args={[2, 64, 64]} />
+        <shaderMaterial
+          vertexShader={vertexShader}
+          fragmentShader={innerFragment}
+          blending={THREE.AdditiveBlending}
+          side={THREE.BackSide}
+          transparent
+        />
+      </mesh>
+    </>
   );
 }
 
-// --- Marker Pin ---
+// --- Glowing Marker Pin ---
 function MarkerPin({
   dest,
   isSelected,
@@ -210,72 +237,135 @@ function MarkerPin({
   );
 
   const markerRef = useRef<THREE.Group>(null);
+  const pulseRef = useRef<THREE.Mesh>(null);
+  const outerPulseRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
-  // Pulse animation
-  useFrame((_, delta) => {
+  // Pulse + glow animation
+  useFrame(() => {
     if (!markerRef.current) return;
+    const t = Date.now() * 0.004;
+    const pulse = 1 + Math.sin(t) * 0.12;
+
     if (isSelected) {
-      markerRef.current.scale.setScalar(1 + Math.sin(Date.now() * 0.005) * 0.15);
+      markerRef.current.scale.setScalar(pulse * 1.15);
+    } else if (hovered) {
+      markerRef.current.scale.setScalar(1.4);
     } else {
-      markerRef.current.scale.setScalar(hovered ? 1.3 : 1);
+      markerRef.current.scale.setScalar(1);
+    }
+
+    // Outer pulse ring
+    if (pulseRef.current) {
+      const ringScale = 1 + Math.sin(t * 1.2) * 0.3;
+      pulseRef.current.scale.setScalar(ringScale);
+      (pulseRef.current.material as THREE.MeshBasicMaterial).opacity =
+        0.4 - Math.sin(t * 1.2) * 0.25;
+    }
+
+    if (outerPulseRef.current) {
+      const outerScale = 1.2 + Math.sin(t * 0.8) * 0.5;
+      outerPulseRef.current.scale.setScalar(outerScale);
+      (outerPulseRef.current.material as THREE.MeshBasicMaterial).opacity =
+        0.15 - Math.sin(t * 0.8) * 0.1;
     }
   });
 
   const showLabel = cameraDistance < 6;
   const showSights = isSelected && cameraDistance < 4;
+  const baseColor = isSelected ? "#E67514" : "#06923E";
 
   return (
     <group ref={markerRef} position={position}>
-      {/* Pin dot */}
+      {/* Outer glow pulse */}
+      <mesh ref={outerPulseRef} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.06, 0.1, 32]} />
+        <meshBasicMaterial
+          color={baseColor}
+          transparent
+          opacity={0.15}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* Inner pulse ring */}
+      <mesh ref={pulseRef} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.04, 0.065, 32]} />
+        <meshBasicMaterial
+          color={baseColor}
+          transparent
+          opacity={0.4}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* Core glowing pin */}
       <mesh
         onClick={(e) => {
           e.stopPropagation();
           onClick();
         }}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
+        onPointerOver={() => {
+          setHovered(true);
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+          document.body.style.cursor = "default";
+        }}
       >
-        <sphereGeometry args={[0.035, 16, 16]} />
+        <sphereGeometry args={[0.032, 16, 16]} />
         <meshStandardMaterial
-          color={isSelected ? "#E67514" : "#06923E"}
-          emissive={isSelected ? "#E67514" : "#06923E"}
-          emissiveIntensity={isSelected ? 0.8 : 0.3}
+          color={baseColor}
+          emissive={baseColor}
+          emissiveIntensity={isSelected ? 1.5 : hovered ? 1.0 : 0.6}
+          toneMapped={false}
         />
       </mesh>
 
-      {/* Ring */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.045, 0.06, 32]} />
-        <meshBasicMaterial
-          color={isSelected ? "#E67514" : "#06923E"}
-          transparent
-          opacity={0.6}
-          side={THREE.DoubleSide}
-        />
+      {/* Pin highlight */}
+      <mesh position={[0, 0.01, 0]}>
+        <sphereGeometry args={[0.012, 12, 12]} />
+        <meshBasicMaterial color="white" transparent opacity={0.7} />
       </mesh>
 
-      {/* Label */}
-      {showLabel && (
+      {/* Tooltip / Label */}
+      {(showLabel || hovered) && (
         <Html
-          position={[0, 0.08, 0]}
+          position={[0, 0.1, 0]}
           center
           distanceFactor={3}
           style={{ pointerEvents: "none" }}
         >
           <div
-            className="px-2 py-1 rounded-md text-xs font-display font-semibold whitespace-nowrap select-none"
             style={{
               background: isSelected
-                ? "hsl(27 90% 49%)"
-                : "hsl(0 0% 13% / 0.85)",
+                ? "linear-gradient(135deg, hsl(27 90% 49%), hsl(27 85% 38%))"
+                : hovered
+                ? "linear-gradient(135deg, hsl(153 90% 30%), hsl(153 80% 22%))"
+                : "hsl(0 0% 10% / 0.88)",
               color: "white",
-              border: isSelected ? "1px solid hsl(27 85% 42%)" : "1px solid hsl(0 0% 30%)",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
-              transform: "translateY(-4px)",
+              padding: "5px 10px",
+              borderRadius: "8px",
+              fontSize: "11px",
+              fontWeight: 700,
+              fontFamily: "'Alfa Slab One', serif",
+              whiteSpace: "nowrap",
+              boxShadow: isSelected
+                ? "0 4px 20px hsl(27 90% 49% / 0.5), 0 0 10px hsl(27 90% 49% / 0.3)"
+                : "0 4px 16px rgba(0,0,0,0.4)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              backdropFilter: "blur(8px)",
+              transform: "translateY(-8px)",
+              transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
             {dest.name}
+            {hovered && !isSelected && (
+              <span style={{ opacity: 0.6, fontSize: "9px", marginLeft: 6 }}>
+                Click to explore
+              </span>
+            )}
           </div>
         </Html>
       )}
@@ -292,23 +382,47 @@ function MarkerPin({
 // --- Sight Marker ---
 function SightMarker({ sight }: { sight: { name: string; lat: number; lng: number } }) {
   const position = useMemo(
-    () => latLngToVector3(sight.lat, sight.lng, 2.03),
+    () => latLngToVector3(sight.lat, sight.lng, 2.035),
     [sight.lat, sight.lng]
   );
+  const pulseRef = useRef<THREE.Mesh>(null);
+
+  useFrame(() => {
+    if (pulseRef.current) {
+      const t = Date.now() * 0.005;
+      (pulseRef.current.material as THREE.MeshBasicMaterial).opacity =
+        0.3 + Math.sin(t) * 0.2;
+    }
+  });
 
   return (
     <group position={position}>
-      <mesh>
-        <sphereGeometry args={[0.015, 12, 12]} />
-        <meshStandardMaterial color="#2563EB" emissive="#2563EB" emissiveIntensity={0.5} />
+      <mesh ref={pulseRef}>
+        <sphereGeometry args={[0.018, 12, 12]} />
+        <meshBasicMaterial color="#60A5FA" transparent opacity={0.5} />
       </mesh>
-      <Html position={[0, 0.05, 0]} center distanceFactor={2.5} style={{ pointerEvents: "none" }}>
+      <mesh>
+        <sphereGeometry args={[0.01, 12, 12]} />
+        <meshStandardMaterial
+          color="#3B82F6"
+          emissive="#3B82F6"
+          emissiveIntensity={0.8}
+          toneMapped={false}
+        />
+      </mesh>
+      <Html position={[0, 0.045, 0]} center distanceFactor={2.5} style={{ pointerEvents: "none" }}>
         <div
-          className="px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap select-none"
           style={{
-            background: "hsl(220 80% 50% / 0.9)",
+            background: "linear-gradient(135deg, hsl(220 80% 50% / 0.92), hsl(220 70% 40% / 0.92))",
             color: "white",
-            boxShadow: "0 1px 6px rgba(0,0,0,0.3)",
+            padding: "3px 8px",
+            borderRadius: "6px",
+            fontSize: "9px",
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            boxShadow: "0 2px 10px rgba(59,130,246,0.4)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            backdropFilter: "blur(4px)",
           }}
         >
           {sight.name}
@@ -318,19 +432,22 @@ function SightMarker({ sight }: { sight: { name: string; lat: number; lng: numbe
   );
 }
 
-// --- Camera Controller ---
+// --- Camera Controller with cinematic fly-in ---
 function CameraController({
   targetDest,
   onDistanceChange,
+  onInteracting,
 }: {
   targetDest: Destination | null;
   onDistanceChange: (d: number) => void;
+  onInteracting: (interacting: boolean) => void;
 }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const targetPos = useRef(new THREE.Vector3());
-  const isAnimating = useRef(false);
   const animProgress = useRef(0);
+  const isAnimating = useRef(false);
+  const interactingTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     if (!targetDest) return;
@@ -344,6 +461,7 @@ function CameraController({
     );
     isAnimating.current = true;
     animProgress.current = 0;
+    onInteracting(true);
   }, [targetDest]);
 
   useFrame((_, delta) => {
@@ -353,16 +471,18 @@ function CameraController({
     onDistanceChange(dist);
 
     if (isAnimating.current) {
-      animProgress.current += delta * 0.8;
+      animProgress.current += delta * 0.6;
       const t = Math.min(animProgress.current, 1);
-      const eased = 1 - Math.pow(1 - t, 3); // ease out cubic
+      // Smooth ease-in-out for cinematic feel
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-      camera.position.lerp(targetPos.current, eased * 0.05);
-      controlsRef.current.target.set(0, 0, 0);
+      camera.position.lerp(targetPos.current, eased * 0.06);
+      controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.1);
       controlsRef.current.update();
 
       if (t >= 1) {
         isAnimating.current = false;
+        setTimeout(() => onInteracting(false), 500);
       }
     }
   });
@@ -374,10 +494,17 @@ function CameraController({
       minDistance={2.8}
       maxDistance={8}
       enableDamping
-      dampingFactor={0.08}
-      rotateSpeed={0.5}
-      zoomSpeed={0.6}
+      dampingFactor={0.06}
+      rotateSpeed={0.4}
+      zoomSpeed={0.5}
       target={[0, 0, 0]}
+      onStart={() => {
+        onInteracting(true);
+        if (interactingTimeout.current) clearTimeout(interactingTimeout.current);
+      }}
+      onEnd={() => {
+        interactingTimeout.current = window.setTimeout(() => onInteracting(false), 2000);
+      }}
     />
   );
 }
@@ -386,6 +513,7 @@ function CameraController({
 function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => void }) {
   const [selectedDest, setSelectedDest] = useState<Destination | null>(null);
   const [cameraDistance, setCameraDistance] = useState(5);
+  const [isInteracting, setIsInteracting] = useState(false);
 
   const handleDestClick = useCallback(
     (dest: Destination) => {
@@ -397,15 +525,16 @@ function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => v
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 3, 5]} intensity={1.2} />
-      <directionalLight position={[-5, -3, -5]} intensity={0.3} />
-      <pointLight position={[0, 5, 0]} intensity={0.5} color="#E67514" />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[5, 3, 5]} intensity={1.4} color="#ffffff" />
+      <directionalLight position={[-3, -2, -4]} intensity={0.2} color="#4488ff" />
+      <pointLight position={[3, 4, 2]} intensity={0.6} color="#E67514" distance={10} />
+      <pointLight position={[-3, -2, 4]} intensity={0.3} color="#06923E" distance={8} />
 
-      <Stars radius={50} depth={50} count={2000} factor={4} fade speed={1} />
+      <Stars radius={80} depth={60} count={3000} factor={5} fade speed={0.8} />
 
       <Suspense fallback={null}>
-        <Earth />
+        <Earth autoRotate={!isInteracting && !selectedDest} />
       </Suspense>
       <Atmosphere />
 
@@ -419,7 +548,11 @@ function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => v
         />
       ))}
 
-      <CameraController targetDest={selectedDest} onDistanceChange={setCameraDistance} />
+      <CameraController
+        targetDest={selectedDest}
+        onDistanceChange={setCameraDistance}
+        onInteracting={setIsInteracting}
+      />
     </>
   );
 }
@@ -428,40 +561,79 @@ function GlobeScene({ onLocationClick }: { onLocationClick?: (name: string) => v
 const GlobeMapSection = ({ onLocationClick }: GlobeMapSectionProps) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="relative w-full overflow-hidden rounded-[50%/30%] border-2 border-border"
+      initial={{ opacity: 0, scale: 0.92, y: 30 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+      className="relative w-full overflow-hidden"
       style={{
-        height: "550px",
-        background: "radial-gradient(ellipse at center, hsl(220 30% 8%) 0%, hsl(220 40% 3%) 100%)",
-        boxShadow:
-          "0 0 60px 10px hsl(220 60% 15% / 0.3), inset 0 0 80px 20px hsl(220 40% 5% / 0.5)",
+        height: "600px",
+        borderRadius: "50% / 28%",
+        background: "radial-gradient(ellipse at 40% 40%, hsl(220 40% 10%) 0%, hsl(220 50% 4%) 60%, hsl(220 60% 2%) 100%)",
+        boxShadow: [
+          "0 0 80px 20px hsl(220 60% 15% / 0.25)",
+          "0 20px 60px -10px hsl(220 50% 8% / 0.6)",
+          "inset 0 0 120px 40px hsl(220 50% 6% / 0.4)",
+        ].join(", "),
+        border: "1px solid hsl(220 30% 20% / 0.5)",
       }}
     >
-      {/* Elliptical inner glow */}
+      {/* Glassmorphism rim highlight */}
       <div
         className="absolute inset-0 pointer-events-none z-10"
         style={{
-          borderRadius: "50% / 30%",
-          boxShadow: "inset 0 0 100px 30px hsl(210 60% 20% / 0.2)",
+          borderRadius: "50% / 28%",
+          background: "linear-gradient(160deg, hsl(220 60% 60% / 0.08) 0%, transparent 40%, transparent 60%, hsl(220 60% 60% / 0.04) 100%)",
+          border: "1px solid hsl(220 40% 40% / 0.12)",
+        }}
+      />
+
+      {/* Top highlight reflection */}
+      <div
+        className="absolute top-0 left-1/4 right-1/4 h-px pointer-events-none z-10"
+        style={{
+          background: "linear-gradient(90deg, transparent 0%, hsl(220 60% 80% / 0.3) 50%, transparent 100%)",
         }}
       />
 
       <Canvas
         camera={{ position: [0, 1.5, 5], fov: 45 }}
-        style={{ borderRadius: "50% / 30%" }}
-        gl={{ antialias: true, alpha: true }}
+        style={{ borderRadius: "50% / 28%" }}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        dpr={[1, 2]}
       >
         <GlobeScene onLocationClick={onLocationClick} />
       </Canvas>
 
       {/* Bottom vignette */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none z-10"
+        className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none z-10"
         style={{
-          background: "linear-gradient(to top, hsl(220 40% 3%) 0%, transparent 100%)",
-          borderRadius: "0 0 50% 50% / 0 0 30% 30%",
+          background: "linear-gradient(to top, hsl(220 50% 3%) 0%, hsl(220 50% 3% / 0.6) 40%, transparent 100%)",
+          borderRadius: "0 0 50% 50% / 0 0 28% 28%",
+        }}
+      />
+
+      {/* Top vignette */}
+      <div
+        className="absolute top-0 left-0 right-0 h-16 pointer-events-none z-10"
+        style={{
+          background: "linear-gradient(to bottom, hsl(220 50% 3% / 0.5) 0%, transparent 100%)",
+          borderRadius: "50% 50% 0 0 / 28% 28% 0 0",
+        }}
+      />
+
+      {/* Side vignettes */}
+      <div
+        className="absolute inset-y-0 left-0 w-16 pointer-events-none z-10"
+        style={{
+          background: "linear-gradient(to right, hsl(220 50% 3% / 0.6) 0%, transparent 100%)",
+        }}
+      />
+      <div
+        className="absolute inset-y-0 right-0 w-16 pointer-events-none z-10"
+        style={{
+          background: "linear-gradient(to left, hsl(220 50% 3% / 0.6) 0%, transparent 100%)",
         }}
       />
     </motion.div>
