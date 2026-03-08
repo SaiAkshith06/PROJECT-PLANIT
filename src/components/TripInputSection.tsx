@@ -4,7 +4,7 @@ import { MapPin, Calendar, Wallet, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import MapSection from "@/components/MapSection";
+import GlobeMapSection from "@/components/GlobeMapSection";
 import { Globe } from "lucide-react";
 
 const TripInputSection = () => {
