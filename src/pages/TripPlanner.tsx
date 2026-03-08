@@ -141,6 +141,7 @@ const TripPlanner = () => {
             </div>
 
             {/* Itinerary */}
+            {itinerary && (
             <div className="lg:col-span-3">
               <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-24">
                 <h2 className="font-display font-bold text-foreground text-lg mb-4 flex items-center gap-2">
@@ -164,6 +165,7 @@ const TripPlanner = () => {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>
