@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500;600&display=swap');
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
-@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap");
-
-@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
-
-@import "./styles/airplane-intro.css";
-
 @layer base {
   :root {
     --background: 110 30% 95%;
@@ -67,15 +57,15 @@
     --shadow-card-hover: 0 8px 30px -4px hsl(153 90% 30% / 0.15);
     --shadow-hero: 0 20px 60px -15px hsl(0 0% 13% / 0.2);
 
-    --font-display: 'Alfa Slab One', serif;
-    --font-body: 'Alfa Slab One', serif;
+    --font-display: 'Geist Sans', 'geist', sans-serif;
+    --font-body: 'Geist Sans', 'geist', sans-serif;
     --chart-1: 27 90% 55%;
     --chart-2: 153 70% 45%;
     --chart-3: 110 20% 65%;
     --chart-4: 0 0% 40%;
     --chart-5: 0 0% 25%;
     --sidebar: 210 40% 98%;
-    --font-sans: 'Alfa Slab One', serif;
+    --font-sans: 'Geist Sans', 'geist', sans-serif;
     --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
@@ -140,11 +130,11 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body);
+    font-family: 'Geist Sans', 'geist', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: 'Geist Sans', 'geist', sans-serif;
   }
 }
 
@@ -229,4 +219,28 @@
   font-weight: 600 !important;
   color: hsl(var(--foreground)) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.9s ease-out;
+}
+@keyframes cloudDrift1 {
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(-300px); }
+}
+
+@keyframes cloudDrift2 {
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(-500px); }
 }

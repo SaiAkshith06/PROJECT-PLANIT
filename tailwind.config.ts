@@ -15,16 +15,19 @@ export default {
   	extend: {
   		fontFamily: {
 			display: [
-				'Alfa Slab One',
-				'serif'
+				'Geist Sans',
+				'geist',
+				'sans-serif'
 			],
 			body: [
-				'Alfa Slab One',
-				'serif'
+				'Geist Sans',
+				'geist',
+				'sans-serif'
 			],
 			sans: [
-				'Alfa Slab One',
-				'serif'
+				'Geist Sans',
+				'geist',
+				'sans-serif'
 			],
   			serif: [
   				'Lora',

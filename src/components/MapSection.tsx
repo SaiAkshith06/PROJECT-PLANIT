@@ -91,7 +91,7 @@ const MapSection = forwardRef<MapSectionHandle, MapSectionProps>(({
           L.popup({ className: "custom-popup" })
             .setLatLng(pos)
             .setContent(`
-              <div style="font-family: 'Alfa Slab One', serif; min-width: 160px;">
+              <div style="font-family: 'Geist Sans', sans-serif; min-width: 160px;">
                 <strong style="font-size: 14px; color: #212121;">${name}</strong>
                 ${description ? `<p style="font-size: 12px; color: #555; margin: 4px 0 0 0;">${description}</p>` : ""}
               </div>
@@ -159,7 +159,7 @@ const MapSection = forwardRef<MapSectionHandle, MapSectionProps>(({
 
     allMarkers.forEach((m) => {
       const popupContent = `
-        <div style="font-family: 'Alfa Slab One', serif; min-width: 160px;">
+        <div style="font-family: 'Geist Sans', sans-serif; min-width: 160px;">
           <strong style="font-size: 14px; color: #212121;">${m.name}</strong>
           ${m.description ? `<p style="font-size: 12px; color: #555; margin: 4px 0 0 0;">${m.description}</p>` : ""}
         </div>
