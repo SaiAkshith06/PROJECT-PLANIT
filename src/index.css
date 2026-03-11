@@ -10,6 +10,8 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 
+@import "./styles/airplane-intro.css";
+
 @layer base {
   :root {
     --background: 110 30% 95%;

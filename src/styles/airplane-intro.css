@@ -1,0 +1,14 @@
+@keyframes cloudDrift1 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(15px); }
+}
+
+@keyframes cloudDrift2 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-20px); }
+}
+
+@keyframes cloudDrift3 {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
