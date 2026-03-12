@@ -32,8 +32,13 @@ const HeroSection = ({ introComplete = false }: HeroSectionProps) => {
       className="relative pt-16 overflow-hidden min-h-screen"
     >
       {/* Background video */}
-      <motion.div className="absolute inset-0" style={{ y, scale }}>
-
+      <motion.div
+  className="absolute inset-0"
+  style={{ y }}
+  initial={{ scale: 1.12 }}
+  animate={{ scale: 1 }}
+  transition={{ duration: 2.2, ease: "easeOut" }}
+>
         <video
           style={{ filter: "brightness(0.9)" }}
           ref={videoRef}

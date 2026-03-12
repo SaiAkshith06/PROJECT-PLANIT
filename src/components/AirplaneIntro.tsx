@@ -13,52 +13,64 @@ const AirplaneIntro = ({ onComplete }: AirplaneIntroProps) => {
   const startFadeOut = useCallback(() => {
     if (hasTriggered.current) return;
     hasTriggered.current = true;
+
     setFadeOut(true);
-    // Remove component after the CSS transition completes
-    setTimeout(() => onComplete(), 1200);
+
+    // wait for fade animation before removing
+    setTimeout(() => {
+      onComplete();
+    }, 1000);
   }, [onComplete]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Try to play the video programmatically
-    const tryPlay = async () => {
-      try {
-        await video.play();
-      } catch {
-        // Autoplay blocked — skip intro immediately
+    const handleTimeUpdate = () => {
+      // start fade slightly before video ends
+      if (
+        video.duration &&
+        video.currentTime >= video.duration - 0.8 &&
+        !hasTriggered.current
+      ) {
         startFadeOut();
       }
     };
 
-    // If video is already ready, play it
+    const handlePlayAttempt = async () => {
+      try {
+        await video.play();
+      } catch {
+        // autoplay blocked → skip intro
+        startFadeOut();
+      }
+    };
+
     if (video.readyState >= 3) {
-      tryPlay();
+      handlePlayAttempt();
     } else {
-      video.addEventListener("canplay", () => tryPlay(), { once: true });
+      video.addEventListener("canplay", handlePlayAttempt, { once: true });
     }
 
-    // When video ends naturally, fade out
-    video.addEventListener("ended", startFadeOut, { once: true });
-
-    // Safety fallback — if video is too long or stalls, fade out after 6s
-    const fallback = setTimeout(startFadeOut, 6000);
+    video.addEventListener("timeupdate", handleTimeUpdate);
 
     return () => {
-      clearTimeout(fallback);
-      video.removeEventListener("ended", startFadeOut);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
     };
   }, [startFadeOut]);
 
   return (
-    <div
-      className={`fixed inset-0 z-[100] transition-opacity duration-1000 ease-in-out ${
-        fadeOut ? "opacity-0" : "opacity-100"
-      }`}
-      style={{ pointerEvents: fadeOut ? "none" : "auto" }}
-    >
-      {/* Intro video — fullscreen */}
+    <motion.div
+  className="fixed inset-0 z-[100]"
+  initial={{ opacity: 1, scale: 1 }}
+  animate={{
+    opacity: fadeOut ? 0 : 1,
+    scale: fadeOut ? 1.08 : 1
+  }}
+  transition={{ duration: 1.2, ease: "easeOut" }}
+  style={{ pointerEvents: fadeOut ? "none" : "auto" }}
+>
+      {/* Intro Video */}
       <video
         ref={videoRef}
         autoPlay
@@ -70,7 +82,7 @@ const AirplaneIntro = ({ onComplete }: AirplaneIntroProps) => {
         <source src="/intro.mp4" type="video/mp4" />
       </video>
 
-      {/* Cloud overlays */}
+      {/* Clouds */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           style={{
@@ -105,7 +117,7 @@ const AirplaneIntro = ({ onComplete }: AirplaneIntroProps) => {
         className="absolute pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 1.4 }}
+        transition={{ delay: 1.2, duration: 1.2 }}
         style={{
           left: "50%",
           top: "46%",
@@ -118,12 +130,12 @@ const AirplaneIntro = ({ onComplete }: AirplaneIntroProps) => {
         }}
       />
 
-      {/* Secondary cabin light spill */}
+      {/* Cabin light spill */}
       <motion.div
         className="absolute pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.7, duration: 1.6 }}
+        transition={{ delay: 1.6, duration: 1.4 }}
         style={{
           left: "48%",
           top: "50%",
@@ -135,7 +147,7 @@ const AirplaneIntro = ({ onComplete }: AirplaneIntroProps) => {
           filter: "blur(60px)",
         }}
       />
-    </div>
+    </motion.div>
   );
 };
 
