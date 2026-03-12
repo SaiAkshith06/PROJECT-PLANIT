@@ -2,8 +2,9 @@ import { useRef, useState, useEffect } from "react";
 import SearchSection from "@/components/SearchSection";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import PopularDestinations from "@/components/PopularDestinations";
+import DestinationScroller from "@/components/DestinationScroller";
 import AirplaneIntro from "@/components/AirplaneIntro";
+import { SITE_NAME } from "@/config/site";
 
 const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,7 +32,7 @@ const Index = () => {
 
       <SearchSection />
 
-      <PopularDestinations />
+      <DestinationScroller />
 
       {showIntro && (
         <AirplaneIntro
@@ -45,7 +46,7 @@ const Index = () => {
       <footer className="py-10 border-t border-border bg-card/50">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} PLANIT. All rights reserved.
+            © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
           </p>
         </div>
       </footer>

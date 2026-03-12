@@ -1,7 +1,16 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 
 export default function SearchSection() {
-  const popularDestinations = ["Goa", "Manali", "Kerala", "Ladakh"];
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (!query.trim()) return;
+    const formatted = query.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/destination/${formatted}`);
+  };
 
   return (
     <section className="w-full flex items-center justify-center py-32 bg-gradient-to-b from-gray-50 to-white">
@@ -9,7 +18,7 @@ export default function SearchSection() {
 
         {/* Headline */}
         <h1
-          className="text-6xl md:text-7xl text-center mb-16 tracking-wide font-bold"
+          className="font-display text-6xl md:text-7xl text-center mb-16 tracking-wide font-bold"
           style={{
             color: "#0F172A",
             textShadow:
@@ -36,34 +45,23 @@ export default function SearchSection() {
           <input
             type="text"
             placeholder="Search places, cities, or countries…"
-            className="flex-1 bg-transparent outline-none text-lg text-gray-900 placeholder-gray-400 px-4"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            className="flex-1 bg-transparent border-none outline-none text-lg text-gray-900 placeholder-gray-400 px-4"
           />
 
           {/* Button */}
           <button
-            className="text-white px-10 py-4 rounded-full transition-all duration-200 font-medium hover:scale-105"
-            style={{
-              backgroundColor: "#3B82F6",
-              boxShadow: "0px 6px 20px rgba(59,130,246,0.35)",
-            }}
+            onClick={handleSearch}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-10 py-4 rounded-full font-medium transition-all duration-200 hover:scale-105 shadow-lg"
           >
             Search
           </button>
         </div>
 
-        {/* Popular */}
-        <div className="mt-10 flex items-center gap-4 flex-wrap justify-center">
-          <span className="text-gray-600 text-sm font-medium">Popular</span>
-
-          {popularDestinations.map((destination) => (
-            <button
-              key={destination}
-              className="px-6 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-gray-700 text-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-            >
-              {destination}
-            </button>
-          ))}
-        </div>
       </div>
     </section>
   );

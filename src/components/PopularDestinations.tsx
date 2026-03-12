@@ -89,10 +89,10 @@ const PopularDestinations = () => {
 					className="text-center mb-16"
 					style={{ opacity: headerOpacity, y: headerY }}
 				>
-					<h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3">
+					<h2 className="font-display text-4xl md:text-5xl font-bold text-slate-900 mb-3">
 						Explore India
 					</h2>
-					<p className="text-gray-500 text-lg max-w-xl mx-auto">
+					<p className="font-body text-gray-500 text-lg max-w-xl mx-auto">
 						Handpicked destinations loved by travelers
 					</p>
 				</motion.div>

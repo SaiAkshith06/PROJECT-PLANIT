@@ -15,18 +15,15 @@ export default {
   	extend: {
   		fontFamily: {
 			display: [
-				'Geist Sans',
-				'geist',
+				'Quicksand',
 				'sans-serif'
 			],
 			body: [
-				'Geist Sans',
-				'geist',
+				'Cabin',
 				'sans-serif'
 			],
 			sans: [
-				'Geist Sans',
-				'geist',
+				'Cabin',
 				'sans-serif'
 			],
   			serif: [
@@ -39,7 +36,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'Space Mono',
+  				'Inconsolata',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',

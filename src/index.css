@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Cabin:wght@400;500;600;700&family=Inconsolata:wght@400;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,77 +51,58 @@
     --travel-forest: 153 90% 30%;
     --travel-sand: 110 30% 87%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 13%) 0%, hsl(153 90% 30%) 50%, hsl(27 90% 49%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(110 30% 95%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(27 90% 49%) 0%, hsl(27 85% 42%) 100%);
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(0 0% 13%) 0%,
+      hsl(153 90% 30%) 50%,
+      hsl(27 90% 49%) 100%
+    );
+
+    --gradient-card: linear-gradient(
+      180deg,
+      hsl(0 0% 100%) 0%,
+      hsl(110 30% 95%) 100%
+    );
+
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(27 90% 49%) 0%,
+      hsl(27 85% 42%) 100%
+    );
 
     --shadow-card: 0 4px 20px -4px hsl(153 90% 30% / 0.08);
     --shadow-card-hover: 0 8px 30px -4px hsl(153 90% 30% / 0.15);
     --shadow-hero: 0 20px 60px -15px hsl(0 0% 13% / 0.2);
 
-    --font-display: 'Geist Sans', 'geist', sans-serif;
-    --font-body: 'Geist Sans', 'geist', sans-serif;
+    /* Font setup */
+    --font-display: "Quicksand", sans-serif;
+    --font-body: "Cabin", sans-serif;
+    --font-sans: "Cabin", sans-serif;
+    --font-mono: "Inconsolata", monospace;
+
     --chart-1: 27 90% 55%;
     --chart-2: 153 70% 45%;
     --chart-3: 110 20% 65%;
     --chart-4: 0 0% 40%;
     --chart-5: 0 0% 25%;
     --sidebar: 210 40% 98%;
-    --font-sans: 'Geist Sans', 'geist', sans-serif;
-    --font-serif: 'Lora', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
+      0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
+      0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
+      0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
+      0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
+      0 8px 10px -1px hsl(0 0% 0% / 0.1);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+
     --tracking-normal: 0em;
     --spacing: 0.25rem;
-  }
-  .dark {
-    --background: 0 0% 10%;
-    --foreground: 110 30% 92%;
-    --card: 0 0% 15%;
-    --card-foreground: 110 30% 92%;
-    --popover: 0 0% 18%;
-    --popover-foreground: 110 30% 92%;
-    --primary: 27 90% 49%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 110 30% 87%;
-    --secondary-foreground: 0 0% 13%;
-    --muted: 0 0% 30%;
-    --muted-foreground: 110 20% 75%;
-    --accent: 0 0% 18%;
-    --accent-foreground: 110 30% 87%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
-    --border: 0 0% 25%;
-    --input: 0 0% 25%;
-    --ring: 27 90% 49%;
-    --chart-1: 27 90% 55%;
-    --chart-2: 153 70% 45%;
-    --chart-3: 110 20% 65%;
-    --chart-4: 0 0% 40%;
-    --chart-5: 0 0% 25%;
-    --sidebar: 0 0% 15%;
-    --sidebar-foreground: 110 30% 92%;
-    --sidebar-primary: 27 90% 49%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 153 90% 30%;
-    --sidebar-accent-foreground: 110 30% 92%;
-    --sidebar-border: 0 0% 25%;
-    --sidebar-ring: 27 90% 49%;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
 }
 
@@ -130,14 +113,21 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Geist Sans', 'geist', sans-serif;
+    font-family: "Cabin", sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Geist Sans', 'geist', sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Quicksand", sans-serif;
+    letter-spacing: 0.04em;
   }
 }
 
+/* Leaflet Map */
 .leaflet-container {
   width: 100%;
   height: 100%;
@@ -145,81 +135,8 @@
   z-index: 0;
 }
 
-@keyframes wave {
-  0% { transform: translateX(0) translateZ(0) scaleY(1); }
-  50% { transform: translateX(-25%) translateZ(0) scaleY(0.6); }
-  100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
-}
+/* Animations */
 
-@keyframes wave2 {
-  0% { transform: translateX(0) translateZ(0) scaleY(1); }
-  50% { transform: translateX(-30%) translateZ(0) scaleY(0.7); }
-  100% { transform: translateX(-60%) translateZ(0) scaleY(1); }
-}
-
-.wave-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 120px;
-  overflow: hidden;
-  z-index: 2;
-}
-
-.wave {
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  width: 200%;
-  height: 100%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23D3ECCD' fill-opacity='0.6' d='M0,224L48,218.7C96,213,192,203,288,186.7C384,171,480,149,576,154.7C672,160,768,192,864,197.3C960,203,1056,181,1152,165.3C1248,149,1344,139,1392,133.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x;
-  background-size: 50% 100%;
-  animation: wave 8s linear infinite;
-}
-
-.wave2 {
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  width: 200%;
-  height: 100%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%2306923E' fill-opacity='0.2' d='M0,288L48,272C96,256,192,224,288,213.3C384,203,480,213,576,229.3C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x;
-  background-size: 50% 100%;
-  animation: wave2 6s linear infinite;
-}
-
-.wave3 {
-  position: absolute;
-  bottom: -10px;
-  left: 0;
-  width: 200%;
-  height: 100%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23E67514' fill-opacity='0.15' d='M0,256L48,245.3C96,235,192,213,288,202.7C384,192,480,192,576,202.7C672,213,768,235,864,229.3C960,224,1056,192,1152,176C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'/%3E%3C/svg%3E") repeat-x;
-  background-size: 50% 100%;
-  animation: wave 10s linear infinite;
-}
-
-.custom-popup .leaflet-popup-content-wrapper {
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  border: 1px solid hsl(var(--border));
-}
-
-.custom-popup .leaflet-popup-tip {
-  box-shadow: none;
-}
-
-.route-label {
-  background: hsl(var(--card)) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  border-radius: 6px !important;
-  padding: 2px 8px !important;
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  color: hsl(var(--foreground)) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -235,12 +152,21 @@
 .animate-fadeIn {
   animation: fadeIn 0.9s ease-out;
 }
+
 @keyframes cloudDrift1 {
-  0% { transform: translateX(0px); }
-  100% { transform: translateX(-300px); }
+  0% {
+    transform: translateX(0px);
+  }
+  100% {
+    transform: translateX(-300px);
+  }
 }
 
 @keyframes cloudDrift2 {
-  0% { transform: translateX(0px); }
-  100% { transform: translateX(-500px); }
+  0% {
+    transform: translateX(0px);
+  }
+  100% {
+    transform: translateX(-500px);
+  }
 }
