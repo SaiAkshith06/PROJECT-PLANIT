@@ -4,13 +4,22 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import DestinationScroller from "@/components/DestinationScroller";
 import AirplaneIntro from "@/components/AirplaneIntro";
+import MapView from "@/components/map/MapView";
 import { SITE_NAME } from "@/config/site";
+
+type Location = {
+  lat: number;
+  lng: number;
+};
 
 const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [showIntro, setShowIntro] = useState(false);
   const [introFinished, setIntroFinished] = useState(false);
+
+  // 🔹 Selected destination for map zoom
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 
   useEffect(() => {
     const introPlayed = sessionStorage.getItem("introPlayed");
@@ -32,7 +41,17 @@ const Index = () => {
 
       <SearchSection />
 
-      <DestinationScroller />
+      {/* Destination cards now send location to map */}
+      <DestinationScroller
+        onDestinationClick={(location: Location) =>
+          setSelectedLocation(location)
+        }
+      />
+
+      {/* Map Section */}
+      <div className="mt-24 px-6">
+        <MapView selectedLocation={selectedLocation} />
+      </div>
 
       {showIntro && (
         <AirplaneIntro

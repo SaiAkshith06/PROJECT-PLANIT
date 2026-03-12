@@ -1,6 +1,7 @@
 import { useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { destinations as destinationData } from "@/data/Destination";
 
 import destGoa from "@/assets/dest-goa.jpg";
 import destManali from "@/assets/dest-manali.jpg";
@@ -8,15 +9,26 @@ import destKerala from "@/assets/dest-kerala.jpg";
 import destJaipur from "@/assets/dest-bali.jpg";
 import destLadakh from "@/assets/dest-paris.jpg";
 
-const destinations = [
-  { name: "Goa", country: "India", image: destGoa },
-  { name: "Manali", country: "India", image: destManali },
-  { name: "Kerala", country: "India", image: destKerala },
-  { name: "Jaipur", country: "India", image: destJaipur },
-  { name: "Ladakh", country: "India", image: destLadakh },
-];
+// Map assets to destination names
+const destinationImages: Record<string, string> = {
+  Goa: destGoa,
+  Manali: destManali,
+  Kerala: destKerala,
+  Jaipur: destJaipur,
+  Mumbai: destGoa, // Defaulting to Goa image for Mumbai since no specific asset exists
+  Ladakh: destLadakh,
+};
 
-export default function DestinationScroller() {
+interface Location {
+  lat: number;
+  lng: number;
+}
+
+interface DestinationScrollerProps {
+  onDestinationClick?: (location: Location) => void;
+}
+
+export default function DestinationScroller({ onDestinationClick }: DestinationScrollerProps) {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -28,6 +40,19 @@ export default function DestinationScroller() {
       behavior: "smooth",
     });
   }, []);
+
+  const handleCardClick = (dest: typeof destinationData[0]) => {
+    // 1) Send coordinates to map
+    if (onDestinationClick) {
+      onDestinationClick({
+        lat: dest.lat,
+        lng: dest.lng,
+      });
+    }
+    
+    // 2) Navigate to destination page
+    navigate(`/destination/${dest.name.toLowerCase()}`);
+  };
 
   return (
     <section className="py-20 bg-gradient-to-b from-white to-slate-50">
@@ -77,17 +102,15 @@ export default function DestinationScroller() {
             style={{ scrollbarWidth: "none" }}
           >
             <div className="flex gap-8 w-max pb-4">
-              {destinations.map((dest) => (
+              {destinationData.map((dest) => (
                 <div
                   key={dest.name}
-                  onClick={() =>
-                    navigate(`/destination/${dest.name.toLowerCase()}`)
-                  }
+                  onClick={() => handleCardClick(dest)}
                   className="snap-center group relative w-[320px] h-[420px] rounded-3xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer transition-all duration-500 hover:scale-[1.06] hover:-translate-y-2 hover:shadow-2xl"
                 >
                   {/* Image */}
                   <img
-                    src={dest.image}
+                    src={destinationImages[dest.name] || destGoa}
                     alt={dest.name}
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -101,7 +124,7 @@ export default function DestinationScroller() {
                     <h3 className="font-display text-white text-xl font-semibold">
                       {dest.name}
                     </h3>
-                    <p className="text-white/80 text-sm">{dest.country}</p>
+                    <p className="text-white/80 text-sm">India</p>
                   </div>
                 </div>
               ))}
