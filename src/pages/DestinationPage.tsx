@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { destinations } from "../data/destinations";
+import ExperienceGallery from "../components/ExperienceGallery";
 import "../styles/destination-page.css";
 
 const DestinationPage = () => {
@@ -32,14 +33,22 @@ const DestinationPage = () => {
 
     // ─── Parallax Logic ───
     const handleScroll = () => {
+      const scrolled = window.scrollY;
+
       if (heroRef.current) {
-        const scrolled = window.scrollY;
         // Subtle parallax and scale on background
         const bg = heroRef.current.querySelector(".dest-hero__bg img") as HTMLElement;
         if (bg) {
           bg.style.transform = `translateY(${scrolled * 0.4}px) scale(${1 + scrolled * 0.0005})`;
         }
       }
+
+      // Parallax for decorative orbs
+      const orbs = document.querySelectorAll(".dest-light-orb");
+      orbs.forEach((orb) => {
+        const speed = 0.15;
+        (orb as HTMLElement).style.transform = `translateY(${scrolled * speed}px)`;
+      });
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -106,6 +115,7 @@ const DestinationPage = () => {
         className="dest-section"
         ref={(el: HTMLElement | null) => { discoverRef.current = el; }}
       >
+        <div className="dest-light-orb" />
         <div className="dest-discover-layout">
           <div className="dest-discover-content">
             <div className="dest-fade-up">
@@ -126,20 +136,11 @@ const DestinationPage = () => {
                 ))}
               </div>
 
-              <div className="dest-discover__highlights">
-                {destination.highlights.map((h, i) => (
-                  <div key={i} className="dest-highlight-card dest-stagger-item">
-                    <p className="dest-highlight-card__title">{h.title}</p>
-                    <p className="dest-highlight-card__desc">{h.desc}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
           <div className="dest-plan-card-container dest-slide-in">
             <div className="dest-plan-card">
-              <div className="dest-plan-card__icon">🎒</div>
               <h3 className="dest-plan-card__title">Ready to explore {destination.name}?</h3>
               <p className="dest-plan-card__desc">
                 Get a personalized itinerary including hotels, transport, and the best local spots.
@@ -156,21 +157,30 @@ const DestinationPage = () => {
         </div>
       </section>
 
-      {/* ═══════ EXPERIENCE (NEW) ═══════ */}
-      <section className="dest-section" style={{ paddingTop: 0, paddingBottom: 0 }}>
+      {/* ═══════ EXPERIENCE (UNIFIED) ═══════ */}
+      <section className="dest-section" style={{ paddingTop: 0 }}>
         <div className="dest-fade-up">
           <span className="dest-section__label">Immersion</span>
           <h2 className="dest-section__title">Experience {destination.name}</h2>
         </div>
 
-        <div className="dest-experience dest-fade-up">
-          <div className="dest-experience__track">
-            {destination.experienceImages.map((img, i) => (
-              <div key={i} className="dest-experience__card">
-                <img src={img} alt={`${destination.name} experience ${i}`} className="dest-experience__image" />
+        <div className="dest-experience-unified">
+          {destination.highlights.map((h, i) => (
+            <div key={i} className={`dest-experience-block ${i % 2 === 1 ? 'reverse' : ''} dest-fade-up`}>
+              <div className="dest-experience-block__image-wrap">
+                <ExperienceGallery
+                  images={h.images}
+                  fallback={h.image}
+                  alt={h.title}
+                />
               </div>
-            ))}
-          </div>
+              <div className="dest-experience-block__content">
+                <div className="dest-experience-block__divider" />
+                <h3 className="dest-experience-block__title">{h.title}</h3>
+                <p className="dest-experience-block__desc">{h.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

@@ -139,13 +139,15 @@
 }
 
 .dest-section__title {
-  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-size: clamp(3.5rem, 8vw, 6.5rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.04em;
   color: #ffffff;
   font-family: 'Quicksand', sans-serif;
   max-width: 900px;
+  position: relative;
+  z-index: 1;
 }
 
 .dest-section__divider {
@@ -156,10 +158,15 @@
 @media (min-width: 1024px) {
   .dest-discover-layout {
     display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 4rem;
+    grid-template-columns: 1fr 400px;
+    gap: 6rem;
     align-items: start;
   }
+}
+
+.dest-plan-card-container {
+  width: 100%;
+  perspective: 1000px;
 }
 
 .dest-discover {
@@ -177,50 +184,158 @@
 }
 
 .dest-discover__text {
-  font-size: 1.25rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.35rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 400;
-  max-width: 650px;
+  max-width: 700px;
+  margin-bottom: 4rem;
 }
 
-.dest-discover__highlights {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+/* ── Editorial Highlights ── */
+.dest-editorial-highlights {
+  margin-top: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 800px;
 }
 
-.dest-highlight-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 1.5rem;
-  padding: 2rem;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(20px);
+.dest-editorial-item {
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.dest-highlight-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-8px) scale(1.02);
+.dest-editorial-divider {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0.2s;
 }
 
-.dest-highlight-card__icon {
-  display: none; /* Removed emojis as requested */
+.dest-editorial-item.visible .dest-editorial-divider {
+  transform: translateX(-50%) scaleX(1);
 }
 
-.dest-highlight-card__title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffffff;
+.dest-editorial-item:first-child .dest-editorial-divider {
+  display: none;
+}
+
+/* ── Experience Unified Section ── */
+.dest-experience-unified {
+  margin-top: 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12rem;
+}
+
+.dest-experience-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .dest-experience-block {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 8rem;
+  }
+  
+  .dest-experience-block.reverse {
+    flex-direction: row-reverse;
+  }
+}
+
+.dest-experience-block__image-wrap {
+  flex: 1;
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+}
+
+.dest-experience-block__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.dest-experience-block__image-wrap:hover .dest-experience-block__image {
+  transform: scale(1.15) !important; /* Overriding parallax scale on hover */
+}
+
+.dest-experience-block__content {
+  flex: 0 0 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dest-experience-block__divider {
+  width: 80px;
+  height: 1px;
+  background: #fbbf24;
+  opacity: 0.6;
   margin-bottom: 0.5rem;
-  letter-spacing: -0.01em;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0.3s;
 }
 
-.dest-highlight-card__desc {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.6;
+.dest-experience-block.visible .dest-experience-block__divider {
+  transform: scaleX(1);
+}
+
+.dest-experience-block__title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'Quicksand', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.dest-experience-block__desc {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* Background Soft Glows */
+.dest-section {
+  position: relative;
+}
+
+.dest-light-orb {
+  position: absolute;
+  top: 10%;
+  left: -20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.04) 0%, transparent 70%);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
 }
 
 /* ── Places Grid ── */
@@ -406,48 +521,59 @@
 /* ── Plan Card (Sidebar CTA) ── */
 .dest-plan-card {
   background: linear-gradient(
-    145deg, 
+    165deg, 
     rgba(255, 255, 255, 0.08) 0%, 
-    rgba(255, 255, 255, 0.02) 100%
+    rgba(255, 255, 255, 0.01) 100%
   );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 2rem;
-  padding: 3rem 2.5rem;
-  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2.5rem;
+  padding: 4rem 3rem;
+  text-align: left;
   position: sticky;
-  top: 2rem;
-  backdrop-filter: blur(30px);
+  top: 100px;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
-  margin-top: 2rem;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  gap: 2rem;
+  align-items: flex-start;
+  margin-top: 0;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s ease;
+}
+
+.dest-plan-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 
+              0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
 @media (min-width: 1024px) {
   .dest-plan-card {
-    margin-top: 0;
+    margin-top: 4rem;
   }
 }
 
-.dest-plan-card__icon {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
-}
+/* Removed icon styles */
 
 .dest-plan-card__title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #ffffff;
   font-family: 'Quicksand', sans-serif;
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .dest-plan-card__desc {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.5);
-  line-height: 1.6;
+  line-height: 1.62;
+  font-weight: 400;
 }
 
 .dest-cta__button {
@@ -456,67 +582,36 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 1.125rem 2rem;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  padding: 1.25rem 2.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
   color: #000000;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  border-radius: 999px;
+  border-radius: 1rem;
   border: none;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: 'Quicksand', sans-serif;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .dest-cta__button:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 40px rgba(251, 191, 36, 0.4);
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* ── Experience Section (Horizontal Scroll) ── */
-.dest-experience {
-  margin: 4rem 0;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  overflow-x: auto;
-  overflow-y: hidden;
-  display: flex;
-  gap: 2rem;
-  padding: 2rem 5vw 4rem;
-  scrollbar-width: none;
+.dest-cta__button svg {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dest-experience::-webkit-scrollbar {
-  display: none;
+.dest-cta__button:hover svg {
+  transform: translate(2px, -2px);
 }
 
-.dest-experience__track {
-  display: flex;
-  gap: 2.5rem;
-}
-
-.dest-experience__card {
-  flex: 0 0 clamp(350px, 70vw, 1000px);
-  height: 65vh;
-  min-height: 450px;
-  border-radius: 3rem;
-  overflow: hidden;
-  position: relative;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.dest-experience__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dest-experience__card:hover .dest-experience__image {
-  transform: scale(1.1);
-}
+/* Old Experience Section Removed */
 
 /* ── Animations ── */
 .dest-fade-up {

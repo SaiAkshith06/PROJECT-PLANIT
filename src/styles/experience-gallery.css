@@ -1,0 +1,105 @@
+/* ── ExperienceGallery Component Styles ── */
+
+.exp-gallery {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+/* Image wrapper handles fade transition */
+.exp-gallery__img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.35s ease;
+}
+
+.exp-gallery__img-wrap.transitioning {
+  opacity: 0;
+}
+
+.exp-gallery__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(1.05);
+}
+
+.exp-gallery__img-wrap:not(.transitioning) .exp-gallery__img {
+  transform: scale(1);
+}
+
+/* ── Nav Arrows ── */
+.exp-gallery__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+
+.exp-gallery:hover .exp-gallery__nav {
+  opacity: 1;
+}
+
+.exp-gallery__nav--prev {
+  left: 1.25rem;
+}
+
+.exp-gallery__nav--next {
+  right: 1.25rem;
+}
+
+.exp-gallery__nav:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* ── Dot Indicators ── */
+.exp-gallery__dots {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.exp-gallery__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+  padding: 0;
+}
+
+.exp-gallery__dot.active {
+  background: #ffffff;
+  transform: scale(1.35);
+}
+
+.exp-gallery__dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.65);
+}
