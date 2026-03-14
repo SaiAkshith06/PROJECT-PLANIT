@@ -44,13 +44,10 @@ export default function DestinationScroller({ onDestinationClick }: DestinationS
   const handleCardClick = (dest: typeof destinationData[0]) => {
     // 1) Send coordinates to map
     if (onDestinationClick) {
-      onDestinationClick({
-        lat: dest.lat,
-        lng: dest.lng,
-      });
+      onDestinationClick({ lat: dest.lat, lng: dest.lng });
     }
-    
-    // 2) Navigate to destination page
+
+    // 2) Navigate — all destinations use the same dynamic route
     navigate(`/destination/${dest.name.toLowerCase()}`);
   };
 

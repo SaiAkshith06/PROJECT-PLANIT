@@ -1,0 +1,559 @@
+/* Destination Page Styles — shared by all destination detail pages */
+
+.dest-page {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  background-color: #0a0a0a;
+  color: #ffffff;
+}
+
+/* ── Hero Section ── */
+.dest-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dest-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.dest-hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55) saturate(1.2);
+}
+
+.dest-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.1) 40%,
+    rgba(0, 0, 0, 0.5) 80%,
+    rgba(10, 10, 10, 1) 100%
+  );
+  z-index: 1;
+}
+
+.dest-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dest-hero__subtitle {
+  font-size: 0.875rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.dest-hero__title {
+  font-size: clamp(6rem, 20vw, 18rem);
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  text-shadow: 0 4px 80px rgba(0, 0, 0, 0.4);
+  font-family: 'Quicksand', sans-serif;
+}
+
+.dest-hero__tagline {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  margin-top: 0.5rem;
+}
+
+/* Scroll Indicator */
+.dest-scroll-indicator {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  background: none;
+  border: none;
+}
+
+.dest-scroll-indicator:hover {
+  opacity: 0.7;
+}
+
+.dest-scroll-indicator__text {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dest-scroll-indicator__arrow {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  animation: destBounce 2s ease-in-out infinite;
+}
+
+@keyframes destBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+/* ── Section Common ── */
+.dest-section {
+  padding: 7rem 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.dest-section__label {
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #fbbf24;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  display: block;
+  opacity: 0.8;
+}
+
+.dest-section__title {
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  font-family: 'Quicksand', sans-serif;
+  max-width: 900px;
+}
+
+.dest-section__divider {
+  display: none; /* Removed for a cleaner look */
+}
+
+/* ── Discover Section ── */
+@media (min-width: 1024px) {
+  .dest-discover-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 4rem;
+    align-items: start;
+  }
+}
+
+.dest-discover {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .dest-discover {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+.dest-discover__text {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  max-width: 650px;
+}
+
+.dest-discover__highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.dest-highlight-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(20px);
+}
+
+.dest-highlight-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-8px) scale(1.02);
+}
+
+.dest-highlight-card__icon {
+  display: none; /* Removed emojis as requested */
+}
+
+.dest-highlight-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.dest-highlight-card__desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+/* ── Places Grid ── */
+.dest-places-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 640px) {
+  .dest-places-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dest-place-card {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  cursor: pointer;
+}
+
+.dest-place-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.7s ease;
+  filter: brightness(0.75) saturate(1.1);
+}
+
+.dest-place-card:hover .dest-place-card__image {
+  transform: scale(1.08);
+  filter: brightness(0.6) saturate(1.3);
+}
+
+.dest-place-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+.dest-place-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  z-index: 2;
+  transition: transform 0.4s ease;
+}
+
+.dest-place-card:hover .dest-place-card__content {
+  transform: translateY(-4px);
+}
+
+.dest-place-card__name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'Quicksand', sans-serif;
+  margin-bottom: 0.25rem;
+}
+
+.dest-place-card__location {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.dest-place-card__arrow {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 2;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.4s ease;
+  color: #ffffff;
+}
+
+.dest-place-card:hover .dest-place-card__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Activities Section ── */
+.dest-activities-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 640px) {
+  .dest-activities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dest-activities-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.dest-activity-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  transition: all 0.4s ease;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.dest-activity-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.dest-activity-card:hover::before {
+  opacity: 1;
+}
+
+.dest-activity-card:hover {
+  border-color: rgba(217, 119, 6, 0.25);
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dest-activity-card__icon {
+  font-size: 3rem;
+  margin-bottom: 1.25rem;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.dest-activity-card:hover .dest-activity-card__icon {
+  transform: scale(1.15);
+}
+
+.dest-activity-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.dest-activity-card__desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.55;
+}
+
+/* ── Plan Card (Sidebar CTA) ── */
+.dest-plan-card {
+  background: linear-gradient(
+    145deg, 
+    rgba(255, 255, 255, 0.08) 0%, 
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  position: sticky;
+  top: 2rem;
+  backdrop-filter: blur(30px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 2rem;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 1024px) {
+  .dest-plan-card {
+    margin-top: 0;
+  }
+}
+
+.dest-plan-card__icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.dest-plan-card__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'Quicksand', sans-serif;
+  line-height: 1.2;
+}
+
+.dest-plan-card__desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+.dest-cta__button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.125rem 2rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Quicksand', sans-serif;
+}
+
+.dest-cta__button:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(251, 191, 36, 0.4);
+}
+
+/* ── Experience Section (Horizontal Scroll) ── */
+.dest-experience {
+  margin: 4rem 0;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  gap: 2rem;
+  padding: 2rem 5vw 4rem;
+  scrollbar-width: none;
+}
+
+.dest-experience::-webkit-scrollbar {
+  display: none;
+}
+
+.dest-experience__track {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.dest-experience__card {
+  flex: 0 0 clamp(350px, 70vw, 1000px);
+  height: 65vh;
+  min-height: 450px;
+  border-radius: 3rem;
+  overflow: hidden;
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dest-experience__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dest-experience__card:hover .dest-experience__image {
+  transform: scale(1.1);
+}
+
+/* ── Animations ── */
+.dest-fade-up {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dest-fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dest-slide-in {
+  opacity: 0;
+  transform: translateX(80px);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dest-slide-in.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.dest-stagger-item {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dest-stagger-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Manual staggered delays */
+.dest-stagger-item:nth-child(1) { transition-delay: 0.1s; }
+.dest-stagger-item:nth-child(2) { transition-delay: 0.2s; }
+.dest-stagger-item:nth-child(3) { transition-delay: 0.3s; }
+.dest-stagger-item:nth-child(4) { transition-delay: 0.4s; }
