@@ -1,23 +1,7 @@
 import { useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { destinations as destinationData } from "@/data/Destination";
-
-import destGoa from "@/assets/dest-goa.jpg";
-import destManali from "@/assets/dest-manali.jpg";
-import destKerala from "@/assets/dest-kerala.jpg";
-import destJaipur from "@/assets/dest-bali.jpg";
-import destLadakh from "@/assets/dest-paris.jpg";
-
-// Map assets to destination names
-const destinationImages: Record<string, string> = {
-  Goa: destGoa,
-  Manali: destManali,
-  Kerala: destKerala,
-  Jaipur: destJaipur,
-  Mumbai: destGoa, // Defaulting to Goa image for Mumbai since no specific asset exists
-  Ladakh: destLadakh,
-};
+import { tier1Cities } from "@/data/tier1Cities";
 
 interface Location {
   lat: number;
@@ -34,21 +18,18 @@ export default function DestinationScroller({ onDestinationClick }: DestinationS
 
   const scroll = useCallback((direction: "left" | "right") => {
     if (!scrollRef.current) return;
-    const amount = 340; // card width + gap
+    const amount = 340;
     scrollRef.current.scrollBy({
       left: direction === "left" ? -amount : amount,
       behavior: "smooth",
     });
   }, []);
 
-  const handleCardClick = (dest: typeof destinationData[0]) => {
-    // 1) Send coordinates to map
+  const handleCardClick = (city: (typeof tier1Cities)[0]) => {
     if (onDestinationClick) {
-      onDestinationClick({ lat: dest.lat, lng: dest.lng });
+      onDestinationClick({ lat: city.coordinates[0], lng: city.coordinates[1] });
     }
-
-    // 2) Navigate — all destinations use the same dynamic route
-    navigate(`/destination/${dest.name.toLowerCase()}`);
+    navigate(`/destination/${city.city.toLowerCase()}`);
   };
 
   return (
@@ -62,7 +43,7 @@ export default function DestinationScroller({ onDestinationClick }: DestinationS
               Trending Destinations
             </h2>
             <p className="font-body text-muted-foreground text-lg">
-              Scroll to explore the most loved places across India
+              Scroll to explore India's most loved metro cities
             </p>
           </div>
 
@@ -99,16 +80,16 @@ export default function DestinationScroller({ onDestinationClick }: DestinationS
             style={{ scrollbarWidth: "none" }}
           >
             <div className="flex gap-8 w-max pb-4">
-              {destinationData.map((dest) => (
+              {tier1Cities.map((city) => (
                 <div
-                  key={dest.name}
-                  onClick={() => handleCardClick(dest)}
+                  key={city.city}
+                  onClick={() => handleCardClick(city)}
                   className="snap-center group relative w-[320px] h-[420px] rounded-3xl overflow-hidden shadow-lg flex-shrink-0 cursor-pointer transition-all duration-500 hover:scale-[1.06] hover:-translate-y-2 hover:shadow-2xl"
                 >
-                  {/* Image */}
+                  {/* Image from Unsplash */}
                   <img
-                    src={destinationImages[dest.name] || destGoa}
-                    alt={dest.name}
+                    src={city.heroImage}
+                    alt={city.city}
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
@@ -119,9 +100,9 @@ export default function DestinationScroller({ onDestinationClick }: DestinationS
                   {/* Text */}
                   <div className="absolute bottom-5 left-5">
                     <h3 className="font-display text-white text-xl font-semibold">
-                      {dest.name}
+                      {city.city}
                     </h3>
-                    <p className="text-white/80 text-sm">India</p>
+                    <p className="text-white/80 text-sm">{city.state}</p>
                   </div>
                 </div>
               ))}

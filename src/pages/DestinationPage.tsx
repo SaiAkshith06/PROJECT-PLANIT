@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
-import { destinations } from "../data/destinations";
-import ExperienceGallery from "../components/ExperienceGallery";
+import { adaptedCities } from "../data/tier1CitiesAdapter";
+import ExperienceCarousel from "../components/ExperienceCarousel";
 import "../styles/destination-page.css";
 
 const DestinationPage = () => {
@@ -12,7 +12,7 @@ const DestinationPage = () => {
   const discoverRef = useRef<HTMLElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
 
-  const destination = slug ? destinations[slug.toLowerCase()] : null;
+  const destination = slug ? adaptedCities[slug.toLowerCase()] : null;
 
   const [tripData, setTripData] = useState<any>(null);
   const [loadingTrip, setLoadingTrip] = useState(false);
@@ -224,23 +224,10 @@ const DestinationPage = () => {
         <span className="dest-section__label">Immersion</span>
 
         <h2 className="dest-section__title">
-          Experience {destination.name}
+          Iconic Experiences
         </h2>
 
-        {destination.highlights.map((h, i) => (
-          <div key={i} className="dest-experience-block">
-            <ExperienceGallery
-              images={h.images}
-              fallback={h.image}
-              alt={h.title}
-            />
-
-            <div>
-              <h3>{h.title}</h3>
-              <p>{h.desc}</p>
-            </div>
-          </div>
-        ))}
+        <ExperienceCarousel experiences={destination.experiences} />
       </section>
 
     </div>

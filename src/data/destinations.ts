@@ -29,6 +29,12 @@ export interface Destination {
   highlights: DestinationHighlight[];
   places: DestinationPlace[];
   activities: DestinationActivity[];
+  experiences?: Array<{
+    name: string;
+    location: string;
+    image: string;
+    description: string;
+  }>;
 }
 
 export const destinations: Record<string, Destination> = {
