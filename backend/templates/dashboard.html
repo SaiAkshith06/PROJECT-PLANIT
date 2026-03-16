@@ -1,0 +1,77 @@
+<!-- Live Travel Dashboard Modal Widget -->
+<div id="live-dashboard-modal"
+    class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity">
+    <div
+        class="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-[90%] md:w-[600px] shadow-2xl relative text-gray-100 overflow-hidden">
+
+        <!-- Header -->
+        <button onclick="closeDashboard()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <h2 class="text-2xl font-bold mb-1 flex items-center gap-2 text-blue-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7l6-3 5.447 2.724A1 1 0 0121 7.618v10.764a1 1 0 01-1.447.894L15 17l-6 3z">
+                </path>
+            </svg>
+            Live Travel Dashboard
+        </h2>
+        <p class="text-sm text-gray-400 mb-6" id="dash-subtitle">Overview for <span id="dash-dest-name"
+                class="font-semibold text-white">Your Trip</span></p>
+
+        <!-- Grid Items -->
+        <div class="grid grid-cols-2 gap-4 mb-4">
+
+            <!-- Weather Block -->
+            <div
+                class="bg-gradient-to-br from-indigo-900 to-blue-900 border border-indigo-500 rounded-xl p-4 flex items-center gap-3">
+                <div class="text-3xl">🌤️</div>
+                <div>
+                    <h3 class="text-xs uppercase tracking-wider text-indigo-300 font-semibold mb-1">Local Weather</h3>
+                    <p id="dash-weather-value" class="text-lg font-bold">28°C Sunny</p>
+                </div>
+            </div>
+
+            <!-- Transport Block -->
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex items-center gap-3">
+                <div class="text-3xl text-emerald-400">✈️</div>
+                <div>
+                    <h3 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1">Main Transport</h3>
+                    <p id="dash-transport-value" class="text-sm font-medium">No Transport Booked</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Hotel Block -->
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 mb-4 flex items-center gap-3">
+            <div class="text-2xl text-orange-400">🏨</div>
+            <div>
+                <h3 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1">Primary Accommodation</h3>
+                <p id="dash-hotel-value" class="text-md font-medium">Unbooked Accommodation</p>
+            </div>
+        </div>
+
+        <!-- Day 1 Itinerary List -->
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-5">
+            <h3 class="text-sm uppercase tracking-wider text-gray-400 font-semibold mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Today's Highlights
+            </h3>
+            <ul id="dash-schedule-list" class="space-y-3">
+                <!-- Dynamically injected items -->
+                <li class="flex items-center gap-3 text-sm text-gray-300">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Relax and verify arrival transportation.
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>

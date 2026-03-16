@@ -1,0 +1,26 @@
+[
+    {
+        "source": "Hyderabad",
+        "destination": "Bangalore",
+        "duration": 90,
+        "price": 4500,
+        "mode": "flight",
+        "provider": "IndiGo"
+    },
+    {
+        "source": "Hyderabad",
+        "destination": "Vijayawada",
+        "duration": 60,
+        "price": 3500,
+        "mode": "flight",
+        "provider": "Air India"
+    },
+    {
+        "source": "Bangalore",
+        "destination": "Hyderabad",
+        "duration": 95,
+        "price": 4200,
+        "mode": "flight",
+        "provider": "Vistara"
+    }
+]

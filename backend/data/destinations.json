@@ -1,0 +1,220 @@
+[
+    {
+        "name": "Goa",
+        "type": "beach",
+        "best_season": [
+            "winter",
+            "spring"
+        ],
+        "lat": 15.2993,
+        "lon": 74.124,
+        "avg_trip_cost": 8000
+    },
+    {
+        "name": "Manali",
+        "type": "mountain",
+        "best_season": [
+            "summer",
+            "winter"
+        ],
+        "lat": 32.2396,
+        "lon": 77.1887,
+        "avg_trip_cost": 6500
+    },
+    {
+        "name": "Jaipur",
+        "type": "heritage",
+        "best_season": [
+            "winter",
+            "spring"
+        ],
+        "lat": 26.9124,
+        "lon": 75.7873,
+        "avg_trip_cost": 5500
+    },
+    {
+        "name": "Agra",
+        "type": "historic",
+        "best_season": [
+            "winter",
+            "autumn"
+        ],
+        "lat": 27.1767,
+        "lon": 78.0081,
+        "avg_trip_cost": 4500
+    },
+    {
+        "name": "Kerala",
+        "type": "nature",
+        "best_season": [
+            "winter"
+        ],
+        "lat": 10.8505,
+        "lon": 76.2711,
+        "avg_trip_cost": 9000
+    },
+    {
+        "name": "Udaipur",
+        "type": "heritage",
+        "best_season": [
+            "winter",
+            "autumn"
+        ],
+        "lat": 24.5854,
+        "lon": 73.7125,
+        "avg_trip_cost": 7500
+    },
+    {
+        "name": "Munnar",
+        "type": "hill_station",
+        "best_season": [
+            "summer",
+            "winter"
+        ],
+        "lat": 10.0889,
+        "lon": 77.0595,
+        "avg_trip_cost": 6000
+    },
+    {
+        "name": "Rishikesh",
+        "type": "adventure",
+        "best_season": [
+            "spring",
+            "autumn"
+        ],
+        "lat": 30.0869,
+        "lon": 78.2676,
+        "avg_trip_cost": 4000
+    },
+    {
+        "name": "Darjeeling",
+        "type": "mountain",
+        "best_season": [
+            "spring",
+            "summer"
+        ],
+        "lat": 27.036,
+        "lon": 88.2627,
+        "avg_trip_cost": 7000
+    },
+    {
+        "name": "Amritsar",
+        "type": "spiritual",
+        "best_season": [
+            "winter",
+            "spring"
+        ],
+        "lat": 31.634,
+        "lon": 74.8723,
+        "avg_trip_cost": 3500
+    },
+    {
+        "name": "Varanasi",
+        "type": "spiritual",
+        "best_season": [
+            "winter",
+            "autumn"
+        ],
+        "lat": 25.3176,
+        "lon": 82.9739,
+        "avg_trip_cost": 3000
+    },
+    {
+        "name": "Ooty",
+        "type": "hill_station",
+        "best_season": [
+            "summer",
+            "spring"
+        ],
+        "lat": 11.41,
+        "lon": 76.695,
+        "avg_trip_cost": 5500
+    },
+    {
+        "name": "Hampi",
+        "type": "historic",
+        "best_season": [
+            "winter"
+        ],
+        "lat": 15.335,
+        "lon": 76.46,
+        "avg_trip_cost": 4500
+    },
+    {
+        "name": "Pondicherry",
+        "type": "beach",
+        "best_season": [
+            "winter",
+            "spring"
+        ],
+        "lat": 11.9416,
+        "lon": 79.8083,
+        "avg_trip_cost": 6500
+    },
+    {
+        "name": "Shimla",
+        "type": "mountain",
+        "best_season": [
+            "summer",
+            "winter"
+        ],
+        "lat": 31.1048,
+        "lon": 77.1734,
+        "avg_trip_cost": 7500
+    },
+    {
+        "name": "Mysore",
+        "type": "heritage",
+        "best_season": [
+            "winter",
+            "autumn"
+        ],
+        "lat": 12.2958,
+        "lon": 76.6394,
+        "avg_trip_cost": 4000
+    },
+    {
+        "name": "Hyderabad",
+        "type": "city",
+        "best_season": [
+            "winter",
+            "autumn"
+        ],
+        "lat": 17.385,
+        "lon": 78.4867,
+        "avg_trip_cost": 5000
+    },
+    {
+        "name": "Kodaikanal",
+        "type": "nature",
+        "best_season": [
+            "summer",
+            "spring"
+        ],
+        "lat": 10.2381,
+        "lon": 77.4892,
+        "avg_trip_cost": 6000
+    },
+    {
+        "name": "Gokarna",
+        "type": "beach",
+        "best_season": [
+            "winter",
+            "autumn"
+        ],
+        "lat": 14.5398,
+        "lon": 74.3168,
+        "avg_trip_cost": 4500
+    },
+    {
+        "name": "Gangtok",
+        "type": "mountain",
+        "best_season": [
+            "spring",
+            "autumn"
+        ],
+        "lat": 27.3314,
+        "lon": 88.6138,
+        "avg_trip_cost": 8000
+    }
+]

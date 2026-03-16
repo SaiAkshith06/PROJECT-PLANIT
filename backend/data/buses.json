@@ -1,0 +1,26 @@
+[
+    {
+        "source": "Hyderabad",
+        "destination": "Warangal",
+        "duration": 180,
+        "price": 200,
+        "mode": "bus",
+        "provider": "TSRTC"
+    },
+    {
+        "source": "Hyderabad",
+        "destination": "Vijayawada",
+        "duration": 300,
+        "price": 500,
+        "mode": "bus",
+        "provider": "Orange Travels"
+    },
+    {
+        "source": "Bangalore",
+        "destination": "Hyderabad",
+        "duration": 600,
+        "price": 1200,
+        "mode": "bus",
+        "provider": "SRS Travels"
+    }
+]

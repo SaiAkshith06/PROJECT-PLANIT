@@ -1,0 +1,26 @@
+[
+    {
+        "source": "Hyderabad",
+        "destination": "Warangal",
+        "duration": 150,
+        "price": 250,
+        "mode": "train",
+        "provider": "Indian Railways (Express)"
+    },
+    {
+        "source": "Hyderabad",
+        "destination": "Vijayawada",
+        "duration": 280,
+        "price": 400,
+        "mode": "train",
+        "provider": "Vande Bharat"
+    },
+    {
+        "source": "Bangalore",
+        "destination": "Hyderabad",
+        "duration": 540,
+        "price": 800,
+        "mode": "train",
+        "provider": "Shatabdi Express"
+    }
+]
