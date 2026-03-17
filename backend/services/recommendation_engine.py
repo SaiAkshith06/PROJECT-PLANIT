@@ -67,7 +67,14 @@ class RecommendationEngine:
             cat_score = cat_weight / 3.0
             
             dist_km = self._haversine(target_lat, target_lon, a["lat"], a["lon"])
-            dist_score = max(0, 1 - (dist_km / 20.0))
+            
+            # Special bypass for curated places which might have approximate lat/lons
+            if a.get("source") == "curated":
+                dist_score = 1.0
+                cat_score = 5.0 # Massive boost
+            else:
+                dist_score = max(0, 1 - (dist_km / 20.0))
+                
             a["distance_km"] = round(dist_km, 2)
             
             # Formula: 0.6 × category + 0.4 × distance
@@ -75,7 +82,7 @@ class RecommendationEngine:
             ranked.append(a)
             
         ranked.sort(key=lambda x: x["ranking_score"], reverse=True)
-        return ranked[:10]
+        return ranked[:15]
 
     def rank_restaurants(self, restaurants, target_lat, target_lon):
         ranked = []

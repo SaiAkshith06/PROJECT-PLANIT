@@ -44,8 +44,14 @@ class POIAgent(BaseAgent):
              print(f"[{self.name}] Could not parse destination coordinates: {e}")
              return []
 
+        # Get destination name from user_input or data
+        destination = data.get("destination")
+        if not destination:
+             ui = data.get("user_input", {})
+             destination = ui.get("destination")
+             
         # Fetch raw POIs
-        raw_pois = self.poi_service.get_pois(dest_lat, dest_lon)
+        raw_pois = self.poi_service.get_pois(dest_lat, dest_lon, city=destination)
         
         engine = RecommendationEngine()
         
