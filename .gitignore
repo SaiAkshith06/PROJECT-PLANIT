@@ -1,4 +1,29 @@
-# Logs
+# ----------------------
+# 🔐 ENV (CRITICAL)
+# ----------------------
+.env
+backend/.env
+
+# ----------------------
+# 🐍 PYTHON
+# ----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+
+# ----------------------
+# 📦 NODE / FRONTEND
+# ----------------------
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# ----------------------
+# 📄 LOGS
+# ----------------------
 logs
 *.log
 npm-debug.log*
@@ -7,18 +32,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# ----------------------
+# 💻 EDITORS / OS
+# ----------------------
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# ----------------------
+# 🧪 OPTIONAL (TEST FILES)
+# ----------------------
+test_*.py
+*.json
