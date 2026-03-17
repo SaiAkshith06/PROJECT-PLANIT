@@ -18,6 +18,11 @@ def root():
     return jsonify({"status": "ok", "service": "planit-api"})
 
 
+@bp.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy", "service": "planit-api"})
+
+
 # =========================
 # ITINERARY API
 # =========================

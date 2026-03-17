@@ -1,7 +1,17 @@
 import os
 import requests
-
 import hashlib
+
+# In-memory cache for images to avoid redundant API calls
+IMAGE_CACHE = {}
+
+CATEGORY_KEYWORDS = {
+    "culture": "heritage architecture monument landmark",
+    "nature": "scenic landscape nature outdoor",
+    "food": "restaurant food interior dining",
+    "spiritual": "temple spiritual architecture mosque church",
+    "general": "travel destination landmark"
+}
 
 def get_fallback_image(query: str) -> str:
     """Generates a pseudo-random but consistent vibrant image URL based on the query hash."""
@@ -18,31 +28,45 @@ def get_fallback_image(query: str) -> str:
     idx = hash_val % len(fallbacks)
     return fallbacks[idx]
 
-def get_image(query: str):
+def get_image(name: str, city: str = "", category: str = "general"):
     """
-    Fetches a high-quality image URL from Unsplash for a given query (e.g., 'Eiffel Tower').
+    Fetches a high-quality image URL from Unsplash for a given place.
+    Improves relevance using city and category keywords.
     """
+    # 1. Build Query
+    category_tags = CATEGORY_KEYWORDS.get(category.lower(), CATEGORY_KEYWORDS["general"])
+    search_query = f"{name} {city} {category_tags}".strip()
+    
+    # 2. Check Cache
+    if search_query in IMAGE_CACHE:
+        return IMAGE_CACHE[search_query]
+
     access_key = os.getenv("UNSPLASH_ACCESS_KEY")
     if not access_key:
-        return get_fallback_image(query)
+        return get_fallback_image(search_query)
 
-    url = f"https://api.unsplash.com/search/photos"
+    url = "https://api.unsplash.com/search/photos"
     params = {
-        "query": query,
+        "query": search_query,
         "client_id": access_key,
         "per_page": 1,
         "orientation": "landscape"
     }
 
     try:
+        print(f"[UnsplashService] Searching: '{search_query}'")
         response = requests.get(url, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
 
         if data.get("results"):
-            return data["results"][0]["urls"]["regular"]
+            # Use 'regular' for high quality but reasonable size
+            img_url = data["results"][0]["urls"]["regular"]
+            IMAGE_CACHE[search_query] = img_url
+            return img_url
+            
     except Exception as e:
-        print(f"[UnsplashService] Error fetching image for '{query}': {e}")
+        print(f"[UnsplashService] Error fetching image for '{search_query}': {e}")
 
-    # Fallback to a generic travel image
-    return get_fallback_image(query)
+    # Fallback to a consistent pseudo-random image
+    return get_fallback_image(search_query)

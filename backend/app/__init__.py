@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 def create_app():
@@ -9,6 +10,9 @@ def create_app():
     # Load environment variables from .env
     load_dotenv()
     app = Flask(__name__, static_folder=None)
+    
+    # Enable CORS
+    CORS(app)
     
     from .routes import bp as main_bp
     app.register_blueprint(main_bp)

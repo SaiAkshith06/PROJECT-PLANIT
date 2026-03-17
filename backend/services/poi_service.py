@@ -128,7 +128,7 @@ class POIService:
                 name = cp["name"]
                 
                 # STEP 4: FIX IMAGE SYSTEM
-                image = get_image(f"{name} {city} famous landmark")
+                image = get_image(name, city=city, category=cp["category"])
                 
                 poi_obj = {
                     "name": name,
@@ -228,7 +228,7 @@ class POIService:
                     continue
 
                 # STEP 7: FIX IMAGE SYSTEM
-                image = get_image(f"{name} {city} famous landmark")
+                image = get_image(name, city=city, category=category)
 
                 results.append({
                     "name": name,
@@ -308,7 +308,7 @@ class POIService:
                     continue
 
                 # STEP 7: FIX IMAGE SYSTEM
-                image = get_image(f"{name} {city} famous landmark")
+                image = get_image(name, city=city, category=category)
 
                 results.append({
                     "name": name,

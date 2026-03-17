@@ -2,6 +2,7 @@
 # 🔐 ENV (CRITICAL)
 # ----------------------
 .env
+.env.*
 backend/.env
 
 # ----------------------
@@ -49,4 +50,4 @@ lerna-debug.log*
 # 🧪 OPTIONAL (TEST FILES)
 # ----------------------
 test_*.py
-*.json
+backend/test_*.json
