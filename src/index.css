@@ -51,24 +51,18 @@
     --travel-forest: 153 90% 30%;
     --travel-sand: 110 30% 87%;
 
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(0 0% 13%) 0%,
-      hsl(153 90% 30%) 50%,
-      hsl(27 90% 49%) 100%
-    );
+    --gradient-hero: linear-gradient(135deg,
+        hsl(0 0% 13%) 0%,
+        hsl(153 90% 30%) 50%,
+        hsl(27 90% 49%) 100%);
 
-    --gradient-card: linear-gradient(
-      180deg,
-      hsl(0 0% 100%) 0%,
-      hsl(110 30% 95%) 100%
-    );
+    --gradient-card: linear-gradient(180deg,
+        hsl(0 0% 100%) 0%,
+        hsl(110 30% 95%) 100%);
 
-    --gradient-accent: linear-gradient(
-      135deg,
-      hsl(27 90% 49%) 0%,
-      hsl(27 85% 42%) 100%
-    );
+    --gradient-accent: linear-gradient(135deg,
+        hsl(27 90% 49%) 0%,
+        hsl(27 85% 42%) 100%);
 
     --shadow-card: 0 4px 20px -4px hsl(153 90% 30% / 0.08);
     --shadow-card-hover: 0 8px 30px -4px hsl(153 90% 30% / 0.15);
@@ -151,22 +145,4 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.9s ease-out;
-}
-
-@keyframes cloudDrift1 {
-  0% {
-    transform: translateX(0px);
-  }
-  100% {
-    transform: translateX(-300px);
-  }
-}
-
-@keyframes cloudDrift2 {
-  0% {
-    transform: translateX(0px);
-  }
-  100% {
-    transform: translateX(-500px);
-  }
 }
