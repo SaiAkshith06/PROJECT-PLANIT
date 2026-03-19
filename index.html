@@ -7,8 +7,18 @@
     <!-- TODO: Set the document title to the name of your application -->
     <title>AI Travel Planner</title>
     <meta name="description" content="Full-stack travel planning application" />
+    <!-- Prepend script to apply dark mode before React paints to prevent flicker -->
+    <script>
+      (function() {
+        try {
+          var localTheme = localStorage.getItem('theme');
+          var theme = localTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        } catch (e) {}
+      })();
+    </script>
     <meta name="author" content="Akshith" />
-
     <!-- TODO: Update og:title to match your application name -->
     <meta property="og:title" content="AI Travel Planner" />
     <meta property="og:description" content="Full-stack travel planning application" />

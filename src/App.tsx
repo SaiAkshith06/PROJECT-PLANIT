@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 import Index from "./pages/Index";
 import TripPlanner from "./pages/TripPlanner";
@@ -25,7 +26,8 @@ function ScrollToTop() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+    <ThemeProvider defaultTheme="system" storageKey="theme">
+      <TooltipProvider>
       <Toaster />
       <Sonner />
 
@@ -40,7 +42,8 @@ const App = () => (
         </Routes>
       </BrowserRouter>
 
-    </TooltipProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

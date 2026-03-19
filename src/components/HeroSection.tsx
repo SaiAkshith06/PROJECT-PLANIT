@@ -24,94 +24,132 @@ const HeroSection = ({ introFinished }: { introFinished: boolean }) => {
   const brandOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const brandScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.92]);
 
+  // Set up continuous ambient loops immediately — hero is always alive
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      // Background subtle zoom breathing (always running)
+      gsap.to(bgVideoRef.current, {
+        scale: 1.03,
+        duration: 15,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        force3D: true,
+      });
+
+      // Fog atmospheric drift
+      gsap.to(overlayRef.current, {
+        x: 20,
+        y: 20,
+        duration: 15,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        force3D: true,
+      });
+
+      gsap.to(overlayRef.current, {
+        opacity: 0.35,
+        duration: 10,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+      
+      // Brand text slow independent float
+      gsap.to(brandRef.current, {
+        y: -4,
+        duration: 4,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        force3D: true,
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // Intro → Hero transition: synchronized with intro fade
   useLayoutEffect(() => {
     if (!introFinished) return;
 
     const ctx = gsap.context(() => {
-      // ✅ INITIAL STATE (PREMIUM START)
-      gsap.set(bgVideoRef.current, {
-        opacity: 1,
-        scale: 1.08,
-        filter: "brightness(0.4) blur(4px)",
-      });
-
-      gsap.set(overlayRef.current, {
-        opacity: 0.8,
-        x: -20,
-      });
-
-      // Soft Reveal Setup (Blur + Opacity + Position)
+      // Text starts hidden with blur
       gsap.set([brandRef.current, titleRef.current, textRef.current], {
         opacity: 0,
-        y: 40,
-        filter: "blur(12px)",
+        y: 20,
+        filter: "blur(8px)",
+        force3D: true,
       });
 
       const tl = gsap.timeline({
         defaults: { ease: "power3.out" },
       });
 
-      // 🎬 1. IMMERSIVE ENVIRONMENT REVEAL
+      // Background: brightness lift + subtle scale settle (overlaps intro fade)
       tl.to(bgVideoRef.current, {
+        filter: "brightness(0.85)",
         scale: 1,
-        filter: "brightness(0.85) blur(0px)",
-        duration: 2.8,
-        ease: "power2.inOut",
-      }, 0)
-      .to(overlayRef.current, {
-        opacity: 0.3,
-        x: 0,
-        duration: 3,
-        ease: "power2.inOut",
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true,
       }, 0)
 
-      // ✨ 2. PREMIUM TEXT REVEAL (Blur -> Sharp)
+      // Overlay softens simultaneously
+      .to(overlayRef.current, {
+        opacity: 0.25,
+        duration: 1.6,
+        ease: "power3.out",
+        force3D: true,
+      }, 0)
+
+      // Brand — appears while intro is still fading (tight overlap)
       .to(brandRef.current, {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 1.8,
-      }, 0.4)
-      .fromTo(brandRef.current, 
-        { letterSpacing: "0.38em" }, 
-        { letterSpacing: "0.22em", duration: 2, ease: "power2.out" }, 
-        0.4
+        duration: 1.4,
+        ease: "power3.out",
+        force3D: true,
+      }, 0.15)
+      .fromTo(brandRef.current,
+        { letterSpacing: "0.30em" },
+        { letterSpacing: "0.22em", duration: 1.8, ease: "power2.out" },
+        "<"
       )
-      .to([titleRef.current, textRef.current], {
+
+      // Tagline — overlaps with brand reveal
+      .to(titleRef.current, {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        stagger: 0.25,
-        duration: 1.6,
-      }, 0.8)
+        duration: 1.4,
+        ease: "power3.out",
+        force3D: true,
+      }, 0.35)
 
-      // 🎡 3. CONTINUOUS FLOATING LOOPS (Apple-like life)
-      // Background subtle zoom oscillation
-      gsap.to(bgVideoRef.current, {
-        scale: 1.03,
-        duration: 20,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
+      // Description — overlaps with tagline
+      .to(textRef.current, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 1.4,
+        ease: "power3.out",
+        force3D: true,
+      }, 0.55)
 
-      // Fog slow horizontal drift
-      gsap.to(overlayRef.current, {
-        x: 30,
-        duration: 15,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
-
-      // Text content gentle float
-      gsap.to(contentWrapperRef.current, {
-        y: -12,
-        duration: 4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
+      // Content breathing float (begins as text settles)
+      .add(() => {
+        gsap.to(contentWrapperRef.current, {
+          y: -6,
+          duration: 6,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          force3D: true,
+        });
+      }, 1.2);
 
     }, sectionRef);
 
@@ -123,11 +161,11 @@ const HeroSection = ({ introFinished }: { introFinished: boolean }) => {
       ref={sectionRef}
       className="relative min-h-screen overflow-hidden bg-black"
     >
-      {/* Background Video Layer */}
+      {/* Background Video Layer — always visible, starts dimmed */}
       <motion.div
         ref={bgVideoRef}
         className="absolute inset-0 z-0"
-        style={{ y }}
+        style={{ y, filter: "brightness(0.6)", transform: "scale(1.05)" }}
       >
         <video
           autoPlay
@@ -135,10 +173,13 @@ const HeroSection = ({ introFinished }: { introFinished: boolean }) => {
           loop
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-all duration-700 dark:brightness-75 dark:contrast-105"
         >
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
+
+        {/* Dark Mode Background Dimmer */}
+        <div className="absolute inset-0 z-0 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6))' }} />
 
         {/* Fog Overlay - Dynamic Layer */}
         <div
@@ -153,11 +194,14 @@ const HeroSection = ({ introFinished }: { introFinished: boolean }) => {
         className="relative z-10 flex flex-col items-center justify-center text-center min-h-screen px-6"
         style={{ opacity: textOpacity, y: textY }}
       >
+        {/* ATMOSPHERIC LIGHT BLOOM */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] md:w-[30vw] md:h-[30vw] bg-white/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+
         {/* BRAND */}
         <motion.h2
           ref={brandRef}
           style={{ opacity: brandOpacity, scale: brandScale }}
-          className="font-display text-white text-6xl md:text-7xl lg:text-9xl font-black tracking-[0.22em] mb-10 will-change-transform"
+          className="relative font-display text-white text-6xl md:text-7xl lg:text-9xl font-black tracking-[0.22em] mb-10 will-change-transform"
         >
           <span className="drop-shadow-[0_10px_50px_rgba(0,0,0,0.9)]">
             {SITE_NAME}
@@ -182,6 +226,9 @@ const HeroSection = ({ introFinished }: { introFinished: boolean }) => {
           Build your dream itinerary in minutes.
         </p>
       </motion.div>
+
+      {/* Dark Mode Hero bottom fade to blend with next section */}
+      <div className="absolute bottom-0 left-0 w-full h-48 z-20 pointer-events-none opacity-0 dark:opacity-100 transition-opacity duration-700" style={{ background: 'linear-gradient(to bottom, rgba(11,15,25,0), rgba(11,15,25,1))' }} />
     </section>
   );
 };
