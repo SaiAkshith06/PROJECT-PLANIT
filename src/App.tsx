@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import Index from "./pages/Index";
 import TripPlanner from "./pages/TripPlanner";
 import DestinationPage from "./pages/DestinationPage";
+import HyderabadPage from "./pages/HyderabadPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/planner" element={<TripPlanner />} />
+          <Route path="/destination/hyderabad" element={<HyderabadPage />} />
           <Route path="/destination/:slug" element={<DestinationPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

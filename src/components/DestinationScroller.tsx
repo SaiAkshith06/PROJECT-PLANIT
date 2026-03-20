@@ -5,6 +5,7 @@ import { tier1Cities } from "@/data/tier1Cities";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTheme } from "@/providers/ThemeProvider";
+import { motion } from "framer-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -112,10 +113,13 @@ export default function DestinationScroller() {
 
   // Removed complex 3D hover logic to implement the clean, premium UI CSS float specification
   return (
-    <section 
+    <motion.section 
       ref={sectionRef} 
-      className="py-24 w-full relative overflow-hidden transition-colors duration-300" 
-      style={{ background: isDark ? 'linear-gradient(to bottom, #0B0F19, #111827)' : 'linear-gradient(to bottom, #F8FAFC, #EEF2F7)' }}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8 }}
+      className="py-24 w-full relative overflow-hidden transition-colors duration-300 will-change-transform bg-transparent" 
     >
       {/* Ambient center radial glow */}
       <div 
@@ -243,6 +247,6 @@ export default function DestinationScroller() {
         </div>
 
       </div>
-    </section>
+    </motion.section>
   );
 }

@@ -1,0 +1,120 @@
+/* Hyderabad Page - Ultra-Premium Cinematic Styles */
+
+:root {
+  --cinema-navy: #020617;
+  --cinema-glow: rgba(59, 130, 246, 0.15);
+  --cinema-border: rgba(255, 255, 255, 0.08);
+}
+
+.bg-cinema-navy {
+  background-color: var(--cinema-navy);
+}
+
+.hero-video-container {
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+.cinematic-vignette {
+  background: radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.7) 100%);
+  pointer-events: none;
+}
+
+.soft-glow-text {
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+}
+
+.hero-zoom-out {
+  animation: hero-zoom-out 25s ease-out forwards;
+}
+
+@keyframes hero-zoom-out {
+  from { transform: scale(1.1); }
+  to { transform: scale(1); }
+}
+
+.scroll-line-anim {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation: scroll-line 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes scroll-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Glassmorphism Refinement */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--cinema-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Interaction Effects */
+.magnetic-lift {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+}
+
+.magnetic-lift:hover {
+  transform: translateY(-20px) scale(1.03);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+}
+
+.inner-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 80%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.magnetic-lift:hover .inner-glow {
+  opacity: 1;
+}
+
+/* Custom Typography */
+.track-cinema {
+  letter-spacing: 0.8em;
+}
+
+.track-cinema-title {
+  letter-spacing: 0.4em;
+}
+
+@media (max-width: 768px) {
+  .track-cinema {
+    letter-spacing: 0.4em;
+  }
+  .track-cinema-title {
+    letter-spacing: 0.2em;
+  }
+}
+
+/* Smooth Scroll Reveal */
+.reveal-layer {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-layer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

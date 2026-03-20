@@ -3,18 +3,28 @@ import SearchSection from "@/components/SearchSection";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import DestinationScroller from "@/components/DestinationScroller";
+import SmoothScroll from "@/components/SmoothScroll";
+import CursorSystem from "@/components/CursorSystem";
 import AirplaneIntro from "@/components/AirplaneIntro";
+import { useTheme } from "@/providers/ThemeProvider";
 import { SITE_NAME } from "@/config/site";
-
-
 
 const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const { theme } = useTheme();
+  const [isDark, setIsDark] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [introFinished, setIntroFinished] = useState(false);
 
-
+  useEffect(() => {
+    const root = window.document.documentElement;
+    setIsDark(root.classList.contains('dark'));
+    const observer = new MutationObserver((m) => {
+      setIsDark(root.classList.contains('dark'));
+    });
+    observer.observe(root, { attributes: true });
+    return () => observer.disconnect();
+  }, [theme]);
 
   useEffect(() => {
     const introPlayed = sessionStorage.getItem("introPlayed");
@@ -28,15 +38,17 @@ const Index = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen overflow-x-hidden bg-black">
-
+    <div ref={containerRef} className={`min-h-screen overflow-x-hidden transition-colors duration-500 ${isDark ? 'bg-black' : 'bg-[#F8FAFC]'} selection:bg-white/20`}>
+      <CursorSystem />
       <Navbar />
 
-      <HeroSection introFinished={introFinished} />
+      <SmoothScroll>
+        <HeroSection introFinished={introFinished} />
 
-      <SearchSection />
+        <SearchSection />
 
-      <DestinationScroller />
+        <DestinationScroller />
+      </SmoothScroll>
 
       {showIntro && (
         <AirplaneIntro

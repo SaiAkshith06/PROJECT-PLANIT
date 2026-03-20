@@ -1,14 +1,12 @@
 import { useState } from "react";
-import { Heart, MapPin, ArrowRight, Route, User } from "lucide-react";
+import { Heart, MapPin, ArrowRight, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CommunityItinerary, CustomItinerary } from "@/data/communityItineraries";
-import type { MapSectionHandle } from "@/components/MapSection";
 
 interface UserItinerariesSectionProps {
   communityItineraries: CommunityItinerary[];
   myItineraries: CustomItinerary[];
   onCreateNew: () => void;
-  onViewOnMap: (stops: { pos: [number, number]; name: string; description: string }[]) => void;
   onDeleteMine: (id: string) => void;
 }
 
@@ -19,7 +17,6 @@ const ItineraryCard = ({
   stops,
   likes,
   isOwn,
-  onView,
   onDelete,
 }: {
   name: string;
@@ -28,7 +25,6 @@ const ItineraryCard = ({
   stops: { name: string }[];
   likes?: number;
   isOwn?: boolean;
-  onView: () => void;
   onDelete?: () => void;
 }) => (
   <div className="bg-card rounded-xl border border-border shadow-card p-4 hover:shadow-card-hover transition-shadow">
@@ -60,13 +56,15 @@ const ItineraryCard = ({
       ))}
     </div>
     <div className="flex items-center gap-2">
-      <Button size="sm" variant="outline" className="gap-1 text-xs flex-1" onClick={onView}>
-        <Route className="w-3 h-3" /> View on Map
-      </Button>
       {isOwn && onDelete && (
-        <Button size="sm" variant="destructive" className="text-xs" onClick={onDelete}>
-          Delete
+        <Button size="sm" variant="destructive" className="text-xs w-full" onClick={onDelete}>
+          Delete Itinerary
         </Button>
+      )}
+      {!isOwn && (
+         <Button size="sm" variant="outline" className="text-xs w-full cursor-default">
+           Community Plan
+         </Button>
       )}
     </div>
   </div>
@@ -76,7 +74,6 @@ const UserItinerariesSection = ({
   communityItineraries,
   myItineraries,
   onCreateNew,
-  onViewOnMap,
   onDeleteMine,
 }: UserItinerariesSectionProps) => {
   const [tab, setTab] = useState<"community" | "mine">("community");
@@ -129,7 +126,6 @@ const UserItinerariesSection = ({
                 avatar={it.avatar}
                 stops={it.stops}
                 likes={it.likes}
-                onView={() => onViewOnMap(it.stops.map((s) => ({ pos: s.coords, name: s.name, description: s.description })))}
               />
             ))
           )}
@@ -154,7 +150,6 @@ const UserItinerariesSection = ({
                 avatar="ME"
                 stops={it.stops}
                 isOwn
-                onView={() => onViewOnMap(it.stops.map((s) => ({ pos: s.coords, name: s.name, description: s.description })))}
                 onDelete={() => onDeleteMine(it.id)}
               />
             ))

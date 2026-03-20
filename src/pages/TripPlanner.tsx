@@ -1,14 +1,12 @@
 import { useSearchParams } from "react-router-dom";
-import { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import MapSection, { DAY_COLORS } from "@/components/MapSection";
-import type { MapMarker, RouteSegment, MapSectionHandle } from "@/components/MapSection";
 import { getDestinationData, generateItinerary } from "@/data/tripData";
 import { getCommunityItineraries, getMyItineraries, saveCustomItinerary, deleteCustomItinerary } from "@/data/communityItineraries";
 import type { CustomItinerary } from "@/data/communityItineraries";
 import UserItinerariesSection from "@/components/UserItinerariesSection";
 import ItineraryBuilder from "@/components/ItineraryBuilder";
-import { Star, Hotel, Plane, Camera, Calendar, IndianRupee, Play, Square } from "lucide-react";
+import { Star, Hotel, Plane, Camera, Calendar, IndianRupee } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,14 +22,8 @@ const TripPlanner = () => {
   const data = useMemo(() => getDestinationData(dest), [dest]);
   const itinerary = useMemo(() => (days ? generateItinerary(data, days) : null), [data, days]);
 
-  const mapSectionRef = useRef<MapSectionHandle>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [currentAnimStep, setCurrentAnimStep] = useState("");
-  const animationRef = useRef<NodeJS.Timeout[]>([]);
-
   const [showBuilder, setShowBuilder] = useState(false);
   const [myItineraries, setMyItineraries] = useState<CustomItinerary[]>([]);
-  const [viewingRoute, setViewingRoute] = useState<RouteSegment[] | null>(null);
 
   // Load custom itineraries
   useEffect(() => {
@@ -40,101 +32,16 @@ const TripPlanner = () => {
 
   const communityIts = useMemo(() => getCommunityItineraries(dest), [dest]);
 
-  const allLocations = useMemo(() => {
-    if (!itinerary) return [];
-    const locs: { pos: [number, number]; name: string; description: string; dayLabel: string }[] = [];
-    itinerary.forEach((day) => {
-      day.locations.forEach((loc) => {
-        locs.push({ ...loc, dayLabel: day.title });
-      });
-    });
-    return locs;
-  }, [itinerary]);
-
-  const stopAnimation = useCallback(() => {
-    animationRef.current.forEach(clearTimeout);
-    animationRef.current = [];
-    setIsAnimating(false);
-    setCurrentAnimStep("");
-    mapSectionRef.current?.resetView(data.coords, 10);
-  }, [data.coords]);
-
-  const startAnimation = useCallback(() => {
-    if (allLocations.length === 0) return;
-    stopAnimation();
-    setIsAnimating(true);
-    setViewingRoute(null);
-    const timeouts: NodeJS.Timeout[] = [];
-    const DELAY = 3500;
-    allLocations.forEach((loc, i) => {
-      timeouts.push(setTimeout(() => {
-        setCurrentAnimStep(`${loc.dayLabel} — ${loc.name}`);
-        mapSectionRef.current?.flyToMarker(loc.pos, loc.name, loc.description);
-      }, i * DELAY));
-    });
-    timeouts.push(setTimeout(() => {
-      setIsAnimating(false);
-      setCurrentAnimStep("");
-      mapSectionRef.current?.resetView(data.coords, 10);
-    }, allLocations.length * DELAY + 2000));
-    animationRef.current = timeouts;
-  }, [allLocations, data.coords, stopAnimation]);
-
-  useEffect(() => () => { animationRef.current.forEach(clearTimeout); }, []);
-
-  const mapMarkers: MapMarker[] = useMemo(() => {
-    const markers: MapMarker[] = [
-      { pos: data.coords, name: data.name, description: `Your destination — ${data.name}` },
-    ];
-    data.nearbyMarkers.forEach((m) => {
-      markers.push({ pos: m.pos, name: m.name, description: m.description });
-    });
-    return markers;
-  }, [data]);
-
-  const itineraryRoutes: RouteSegment[] = useMemo(() => {
-    if (!itinerary) return [];
-    return itinerary
-      .filter((day) => day.locations.length >= 2)
-      .map((day, i) => ({
-        positions: day.locations.map((loc) => loc.pos),
-        color: DAY_COLORS[i % DAY_COLORS.length],
-        label: `Day ${day.day}`,
-      }));
-  }, [itinerary]);
-
-  // Use viewing route if set, otherwise itinerary routes
-  const activeRoutes = viewingRoute || itineraryRoutes;
-
-  const handleViewOnMap = useCallback((stops: { pos: [number, number]; name: string; description: string }[]) => {
-    if (stops.length < 2) return;
-    const route: RouteSegment = {
-      positions: stops.map((s) => s.pos),
-      color: "#E67514",
-      label: "Custom Route",
-    };
-    setViewingRoute([route]);
-    // Fly to first stop
-    mapSectionRef.current?.flyToMarker(stops[0].pos, stops[0].name, stops[0].description);
-  }, []);
-
   const handleSaveItinerary = useCallback((it: CustomItinerary) => {
     saveCustomItinerary(it);
     setMyItineraries(getMyItineraries().filter((i) => i.destination.toLowerCase() === dest.toLowerCase()));
     setShowBuilder(false);
-    // Show the new route on map
-    handleViewOnMap(it.stops.map((s) => ({ pos: s.coords, name: s.name, description: s.description })));
-  }, [dest, handleViewOnMap]);
+  }, [dest]);
 
   const handleDeleteItinerary = useCallback((id: string) => {
     deleteCustomItinerary(id);
     setMyItineraries(getMyItineraries().filter((i) => i.destination.toLowerCase() === dest.toLowerCase()));
   }, [dest]);
-
-  const clearViewingRoute = useCallback(() => {
-    setViewingRoute(null);
-    mapSectionRef.current?.resetView(data.coords, 10);
-  }, [data.coords]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -152,47 +59,9 @@ const TripPlanner = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Map */}
-            <div className={`h-[500px] lg:h-auto lg:min-h-[700px] ${itinerary ? "lg:col-span-5" : "lg:col-span-6"}`}>
-              <MapSection
-                ref={mapSectionRef}
-                center={data.coords}
-                zoom={10}
-                className="h-full"
-                extraMarkers={mapMarkers}
-                routes={activeRoutes}
-              />
-              {isAnimating && currentAnimStep && (
-                <div className="mt-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary" />
-                  </span>
-                  <span className="text-sm font-medium text-foreground">{currentAnimStep}</span>
-                </div>
-              )}
-              {viewingRoute && !isAnimating && (
-                <div className="mt-3 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center justify-between">
-                  <span className="text-xs font-medium text-foreground">Viewing custom route</span>
-                  <Button size="sm" variant="ghost" className="text-xs h-7" onClick={clearViewingRoute}>
-                    Back to itinerary
-                  </Button>
-                </div>
-              )}
-              {activeRoutes.length > 0 && !isAnimating && !viewingRoute && (
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {activeRoutes.map((r, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span className="w-4 h-1 rounded-full inline-block" style={{ backgroundColor: r.color }} />
-                      {r.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
+            
             {/* Results Panel */}
-            <div className={itinerary ? "lg:col-span-4" : "lg:col-span-6"}>
+            <div className={itinerary ? "lg:col-span-8" : "lg:col-span-12"}>
               <Tabs defaultValue="hotels" className="w-full">
                 <TabsList className="w-full grid grid-cols-3">
                   <TabsTrigger value="hotels" className="gap-1.5"><Hotel className="w-4 h-4" /> Hotels</TabsTrigger>
@@ -275,48 +144,30 @@ const TripPlanner = () => {
                 communityItineraries={communityIts}
                 myItineraries={myItineraries}
                 onCreateNew={() => setShowBuilder(true)}
-                onViewOnMap={handleViewOnMap}
                 onDeleteMine={handleDeleteItinerary}
               />
             </div>
 
             {/* Itinerary */}
             {itinerary && (
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-4">
                 <div className="bg-card rounded-xl border border-border shadow-card p-5 sticky top-24">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-display font-bold text-foreground text-lg flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-primary" />
                       Your Itinerary
                     </h2>
-                    {allLocations.length > 0 && (
-                      <Button
-                        size="sm"
-                        variant={isAnimating ? "destructive" : "default"}
-                        onClick={isAnimating ? stopAnimation : startAnimation}
-                        className="gap-1.5 text-xs"
-                      >
-                        {isAnimating ? (<><Square className="w-3 h-3" /> Stop</>) : (<><Play className="w-3 h-3" /> Animate Plan</>)}
-                      </Button>
-                    )}
                   </div>
                   <div className="space-y-5">
                     {itinerary.map((day, dayIdx) => (
-                      <div key={day.day} className="relative pl-6 border-l-2" style={{ borderColor: DAY_COLORS[dayIdx % DAY_COLORS.length] }}>
-                        <div className="absolute left-[-7px] top-0 w-3 h-3 rounded-full" style={{ backgroundColor: DAY_COLORS[dayIdx % DAY_COLORS.length] }} />
+                      <div key={day.day} className="relative pl-6 border-l-2" style={{ borderColor: 'hsl(var(--primary))' }}>
+                        <div className="absolute left-[-7px] top-0 w-3 h-3 rounded-full bg-primary" />
                         <h3 className="font-display font-semibold text-sm text-foreground mb-1.5">{day.title}</h3>
                         <ul className="space-y-1">
                           {day.activities.map((act, i) => (
                             <li key={i} className="text-xs text-muted-foreground leading-relaxed">• {act}</li>
                           ))}
                         </ul>
-                        {day.locations.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {day.locations.map((loc, i) => (
-                              <span key={i} className="text-[10px] bg-muted/30 text-muted-foreground rounded px-1.5 py-0.5">📍 {loc.name}</span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
